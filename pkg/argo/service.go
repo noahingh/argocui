@@ -2,6 +2,7 @@ package argo
 
 import (
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
+	"context"
 )
 
 // Service is the layer of use case, it encapsulates and implements all of the use cases of the system.
@@ -32,6 +33,6 @@ func (s *Service) Delete(key string) error {
 }
 
 // Logs return the slice of log which type is string and the identifier and message are separated by delimeter.
-func (s *Service) Logs(key string) (logs []string, delim string, err error) {
-	return s.repo.Logs(key)
+func (s *Service) Logs(ctx context.Context, key string) (logs []string, delim string, err error) {
+	return s.repo.Logs(ctx, key)
 }

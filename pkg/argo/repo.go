@@ -1,6 +1,7 @@
 package argo
 
 import (
+	"context"
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 )
 
@@ -9,5 +10,5 @@ type Repository interface {
 	Get(key string) *wf.Workflow
 	Search(pattern string) []*wf.Workflow
 	Delete(key string) error
-	Logs(key string) (logs []string, delim string, err error)
+	Logs(ctx context.Context, key string) (logs []string, delim string, err error)
 }
