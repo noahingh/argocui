@@ -11,6 +11,7 @@ require (
 	github.com/jroimartin/gocui v0.4.0
 	github.com/ryanuber/go-glob v1.0.0
 	github.com/sirupsen/logrus v1.4.2
+	github.com/willf/pad v0.0.0-20190207183901-eccfe5d84172
 	k8s.io/api v0.0.0-20191004120003-3a12735a829a
 	k8s.io/apimachinery v0.0.0-20191004115701-31ade1b30762
 	k8s.io/client-go v0.0.0-20191004120415-b2f42092e376
