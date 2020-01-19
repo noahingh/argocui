@@ -27,7 +27,7 @@ type Repository interface {
 
 // Log  is log from a Argo workflow.
 type Log struct {
-	Pod         string
-	Message     string
-	Time        time.Time
+	Pod     string
+	Message string
+	Time    time.Time
 }
