@@ -31,15 +31,9 @@ type ArgoRepository struct {
 // NewArgoRepository create a new Argo repository.
 func NewArgoRepository(
 	argoClientset versioned.Interface, argoInformer informers.WorkflowInformer, kubeClientset kubernetes.Interface) *ArgoRepository {
-	var (
-		neverStop = make(chan struct{}, 0)
-	)
 	s := newStorage(argoInformer)
 	c := newController(argoClientset, argoInformer, s)
 
-	// run the controller
-	go c.run(neverStop)
-	c.waitForSynced(neverStop)
 	repo := &ArgoRepository{
 		c:  c,
 		s:  s,
@@ -51,6 +45,16 @@ func NewArgoRepository(
 		}),
 	}
 	return repo
+}
+
+// WaitForSync wait for syncronize.
+func (a *ArgoRepository) WaitForSync(stop chan struct{}) error {
+	// run the controller
+	a.c.log.Debug("start the controller.")
+	go a.c.run(stop)
+
+	a.c.log.Debug("wait that the controller syncronize.")
+	return a.c.waitForSynced(stop)
 }
 
 // Get get the workflow by the key, the format is "namespace/key", and if doesn't exist it return nil.
