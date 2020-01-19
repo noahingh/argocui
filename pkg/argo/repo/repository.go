@@ -1,12 +1,20 @@
 package repo
 
 import (
+	"bufio"
+	"context"
 	"fmt"
+	"strings"
+	"sync"
+	"time"
 
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	"github.com/argoproj/argo/pkg/client/clientset/versioned"
 	informers "github.com/argoproj/argo/pkg/client/informers/externalversions/workflow/v1alpha1"
+	"github.com/argoproj/argo/workflow/util"
+	"github.com/hanjunlee/argocuiv2/pkg/argo"
 	log "github.com/sirupsen/logrus"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
@@ -99,3 +107,106 @@ func (a *ArgoRepository) Delete(key string) error {
 // func (a *ArgoRepository) Logs(key string) (logs []string, delim string, err error) {
 //
 // }
+
+func (a *ArgoRepository) logsWorkflow(ctx context.Context, w *wf.Workflow) error {
+	err := util.DecompressWorkflow(w)
+	if err != nil {
+		a.log.Error(err)
+		return err
+	}
+
+	// node is the unit of the executed step.
+	var nodes []wf.NodeStatus
+	for _, n := range w.Status.Nodes {
+		if n.Type == wf.NodeTypePod && n.Phase != wf.NodeError {
+			nodes = append(nodes, n)
+		}
+	}
+
+	var (
+		wg sync.WaitGroup
+		ch = make(chan argo.Log, 100)
+	)
+
+	wg.Add(len(nodes))
+	for _, n := range nodes {
+		ns, n := w.Namespace, n.ID
+
+		// get logs from nodes
+		go func() {
+			defer wg.Done()
+
+			a.log.Tracef("log '%s' node.", n)
+			err := a.logsPod(ctx, ch, ns, n)
+			if err != nil {
+				a.log.Errorf("couldn't get logs from '%s' node: %s.", n, err)
+				return
+			}
+		}()
+	}
+	wg.Wait()
+
+	return nil
+}
+
+func (a *ArgoRepository) logsPod(ctx context.Context, ch chan<- argo.Log, ns string, n string) error {
+	const (
+		mainContainerName = "main"
+	)
+	var (
+		key = ns + "/" + n
+	)
+
+	s, err := a.kc.CoreV1().Pods(ns).GetLogs(n, &corev1.PodLogOptions{
+		Container:  mainContainerName,
+		Follow:     true,
+		Timestamps: true, // add an RFC3339 or RFC3339Nano timestamp at the beginning
+	}).Stream()
+	if err != nil {
+		return err
+	}
+
+	scanner := bufio.NewScanner(s)
+	for {
+		select {
+		case <-ctx.Done():
+			a.log.WithField("key", key).Trace("the context is closed.")
+			return nil
+
+		default:
+			if !scanner.Scan() {
+				a.log.WithField("key", key).Trace("finished to logs.")
+				return nil
+			}
+
+			line := scanner.Text()
+			t, m := splitTimeAndMessage(line)
+
+			time, err := time.Parse(time.RFC3339, t)
+			if err != nil {
+				a.log.WithField("key", key).Warnf("can't parse the timestamp: %s", err)
+				continue
+			}
+
+			ch <- argo.Log{
+				Pod:     n,
+				Message: m,
+				Time:    time,
+			}
+		}
+	}
+}
+
+// splitTimeAndMessage split the log from Kubernetes into time and message.
+func splitTimeAndMessage(l string) (string, string) {
+	parts := strings.SplitN(l, " ", 2)
+	return parts[0], parts[1]
+}
+
+func getNodeDisplayName(n wf.NodeStatus) string {
+	dn := n.DisplayName
+	if dn == "" {
+		dn = n.Name
+	}
+	return dn
+}
