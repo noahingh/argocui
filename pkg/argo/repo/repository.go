@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"sync"
 	"time"
 
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
@@ -103,12 +102,26 @@ func (a *ArgoRepository) Delete(key string) error {
 	return nil
 }
 
-// Logs return the slice of log which type is string and the identifier and message are separated by delimeter.
-// func (a *ArgoRepository) Logs(key string) (logs []string, delim string, err error) {
-//
-// }
+// Logs get the channel to recieve Logs from a Argo workflow.
+func (a *ArgoRepository) Logs(ctx context.Context, key string) (<-chan argo.Log, error) {
+	w, err := a.s.GetWorkflow(key)
+	if err != nil {
+		return nil, err
+	}
 
-func (a *ArgoRepository) logsWorkflow(ctx context.Context, w *wf.Workflow) error {
+	var (
+		ch = make(chan argo.Log, 100)
+	)
+	// get logs and send to the channel.
+	err = a.logsWorkflow(ctx, ch, w)
+	if err != nil {
+		return nil, err
+	}
+
+	return ch, nil
+}
+
+func (a *ArgoRepository) logsWorkflow(ctx context.Context, ch chan<- argo.Log, w *wf.Workflow) error {
 	err := util.DecompressWorkflow(w)
 	if err != nil {
 		a.log.Error(err)
@@ -123,19 +136,11 @@ func (a *ArgoRepository) logsWorkflow(ctx context.Context, w *wf.Workflow) error
 		}
 	}
 
-	var (
-		wg sync.WaitGroup
-		ch = make(chan argo.Log, 100)
-	)
-
-	wg.Add(len(nodes))
 	for _, n := range nodes {
 		ns, n := w.Namespace, n.ID
 
-		// get logs from nodes
+		// get logs from nodes at background.
 		go func() {
-			defer wg.Done()
-
 			a.log.Tracef("log '%s' node.", n)
 			err := a.logsPod(ctx, ch, ns, n)
 			if err != nil {
@@ -144,7 +149,6 @@ func (a *ArgoRepository) logsWorkflow(ctx context.Context, w *wf.Workflow) error
 			}
 		}()
 	}
-	wg.Wait()
 
 	return nil
 }
