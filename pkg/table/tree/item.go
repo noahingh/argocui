@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
-	"github.com/hanjunlee/argocui/pkg/color"
+	"github.com/hanjunlee/argocui/pkg/util/color"
 	"github.com/hanjunlee/tree"
 	"github.com/jroimartin/gocui"
 )
