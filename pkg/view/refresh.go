@@ -27,7 +27,7 @@ func RefreshViewPeriodic(g *gocui.Gui, v *gocui.View, duration time.Duration, f 
 				return
 			}
 
-			log.Infof("refresh '%s' view", v.Name())
+			log.Debugf("refresh '%s' view", v.Name())
 			go g.Update(func(g *gocui.Gui) error {
 				return f()
 			})

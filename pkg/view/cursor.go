@@ -48,7 +48,7 @@ func MoveCursorUp(g *gocui.Gui, v *gocui.View, dY int) error {
 		return nil
 	}
 
-	log.WithField("pkg", "view").Info("move the cursor up")
+	log.WithField("pkg", "view").Debug("move the cursor up")
 	if err := v.SetCursor(cx, cy-1); err != nil && oy > 0 {
 		if err := v.SetOrigin(ox, oy-1); err != nil {
 			return err
@@ -67,7 +67,7 @@ func MoveCursorDown(g *gocui.Gui, v *gocui.View) error {
 		return nil
 	}
 
-	log.WithField("pkg", "view").Info("move the cursor down")
+	log.WithField("pkg", "view").Debug("move the cursor down")
 	if err := v.SetCursor(cx, cy+1); err != nil {
 		if err := v.SetOrigin(ox, oy+1); err != nil {
 			return err
@@ -93,7 +93,7 @@ func MoveCursorTop(g *gocui.Gui, v *gocui.View, dY int) error {
 		cy--
 	}
 
-	log.WithField("pkg", "view").Infof("move the cursor top, line '%d'", cy)
+	log.WithField("pkg", "view").Debugf("move the cursor top, line '%d'", cy)
 	return v.SetCursor(cx, cy)
 }
 
@@ -114,7 +114,7 @@ func MoveCursorBottom(g *gocui.Gui, v *gocui.View) error {
 		cy++
 	}
 
-	log.WithField("pkg", "view").Infof("move the cursor bottom, line '%d'", cy)
+	log.WithField("pkg", "view").Debugf("move the cursor bottom, line '%d'", cy)
 	return v.SetCursor(cx, cy)
 }
 
