@@ -24,13 +24,13 @@ type ArgoRepository struct {
 	c   *controller
 	s   *storage
 	ac  versioned.Interface
-	kc  kubernetes.Clientset
+	kc  kubernetes.Interface
 	log *log.Entry
 }
 
 // NewArgoRepository create a new Argo repository.
 func NewArgoRepository(
-	argoClientset versioned.Interface, argoInformer informers.WorkflowInformer, kubeClientset kubernetes.Clientset) *ArgoRepository {
+	argoClientset versioned.Interface, argoInformer informers.WorkflowInformer, kubeClientset kubernetes.Interface) *ArgoRepository {
 	var (
 		neverStop = make(chan struct{}, 0)
 	)
