@@ -46,3 +46,29 @@ func ManagerFunc(s argo.UseCase, g *gocui.Gui) func(g *gocui.Gui) error {
 		return nil
 	}
 }
+
+// Keybinding bind keys on GUI.
+func Keybinding(s argo.UseCase, g *gocui.Gui) error {
+	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			return gocui.ErrQuit
+		}); err != nil {
+		return err
+	}
+
+	// if err := keybindingSearch(g); err != nil {
+	// 	return err
+	// }
+
+	if err := list.Keybinding(s, g); err != nil {
+		return err
+	}
+
+	// keybinding works apart from the view.
+	// if err := keybindingLogs(g); err != nil {
+	// 	return err
+	// }
+
+	return nil
+}
+

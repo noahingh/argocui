@@ -46,7 +46,12 @@ func main() {
 	defer g.Close()
 
 	app.ConfigureGui(g)
+
 	g.SetManagerFunc(app.ManagerFunc(service, g))
+
+	if err := app.Keybinding(service, g); err != nil {
+		log.Panic(err)
+	}
 
 	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
 		log.Panic(err)

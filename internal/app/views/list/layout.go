@@ -2,6 +2,9 @@ package list
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/sirupsen/logrus"
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	h "github.com/argoproj/pkg/humanize"
 	"github.com/hanjunlee/argocui/pkg/argo"
@@ -9,7 +12,6 @@ import (
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	"github.com/hanjunlee/argocui/pkg/view"
 	"github.com/jroimartin/gocui"
-	"time"
 )
 
 const (
@@ -18,7 +20,12 @@ const (
 )
 
 var (
+	// the configuration of the list view.
 	conf config
+	log = logrus.WithFields(logrus.Fields{
+		"pkg": "list",
+		"file": "layout.go",
+	})
 )
 
 func init() {
