@@ -11,7 +11,7 @@ import (
 	"github.com/argoproj/argo/pkg/client/clientset/versioned"
 	informers "github.com/argoproj/argo/pkg/client/informers/externalversions/workflow/v1alpha1"
 	"github.com/argoproj/argo/workflow/util"
-	"github.com/hanjunlee/argocuiv2/pkg/argo"
+	"github.com/hanjunlee/argocui/pkg/argo"
 	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

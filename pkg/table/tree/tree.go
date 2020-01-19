@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
+	"github.com/argoproj/argo/workflow/util"
 	"github.com/argoproj/pkg/humanize"
-	"github.com/hanjunlee/argocui/pkg/clientset/list"
 	"github.com/hanjunlee/tree"
 )
 
@@ -35,7 +35,7 @@ func GetInfo(w *wf.Workflow) [][]string {
 		sa = "default"
 	}
 	setKeyVal("ServiceAccount:", sa)
-	setKeyVal("Status:", string(list.WorkflowStatus(w)))
+	setKeyVal("Status:", string(workflowStatus(w)))
 	if w.Status.Message != "" {
 		setKeyVal("Message:", w.Status.Message)
 	}
@@ -182,4 +182,26 @@ func isExecutionNode(i item) bool {
 		return true
 	}
 	return false
+}
+
+func workflowStatus(w *wf.Workflow) wf.NodePhase {
+	switch w.Status.Phase {
+	case wf.NodeRunning:
+		if util.IsWorkflowSuspended(w) {
+			return "Running (Suspended)"
+		}
+		return w.Status.Phase
+	case wf.NodeFailed:
+		if util.IsWorkflowTerminated(w) {
+			return "Failed (Terminated)"
+		}
+		return w.Status.Phase
+	case "", wf.NodePending:
+		if !w.ObjectMeta.CreationTimestamp.IsZero() {
+			return wf.NodePending
+		}
+		return "Unknown"
+	default:
+		return w.Status.Phase
+	}
 }
