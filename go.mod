@@ -14,6 +14,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6 // indirect
 	github.com/googleapis/gnostic v0.3.1 // indirect
 	github.com/gorilla/websocket v1.4.1 // indirect
+	github.com/hanjunlee/argo v2.3.0+incompatible // indirect
 	github.com/hanjunlee/tree v0.0.0-20200101032508-62b94dc232b4
 	github.com/hashicorp/go-uuid v1.0.1 // indirect
 	github.com/jcmturner/gofork v1.0.0 // indirect
