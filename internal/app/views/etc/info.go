@@ -1,4 +1,4 @@
-package info
+package etc
 
 import (
 	"fmt"
@@ -13,18 +13,25 @@ import (
 
 const (
 	infoViewName  = "info"
-	brandViewName = "brand"
 )
 
-var (
-	log = logrus.WithFields(logrus.Fields{
-		"pkg":  "info",
-		"file": "layout.go",
-	})
-)
+// InfoConfig is the configuration of a info view.
+type InfoConfig struct {
+	log *logrus.Entry
+}
 
-// LayoutInfo lay out the view of informations of Argo CUI.
-func LayoutInfo(g *gocui.Gui, x0, y0, x1, y1 int) error {
+// NewInfoConfig create a new config.
+func NewInfoConfig() *InfoConfig {
+	return &InfoConfig{
+		log: logrus.WithFields(logrus.Fields{
+			"pkg": "etc",
+			"view": "info",
+		}),
+	}
+}
+
+// Layout lay out the view of informations of Argo CUI.
+func (c *InfoConfig) Layout(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	v, err := g.SetView(infoViewName, x0, y0, x1, y1)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
@@ -46,12 +53,12 @@ func LayoutInfo(g *gocui.Gui, x0, y0, x1, y1 int) error {
 			)
 
 			if context, err = argoutil.GetCurrentContext(); err != nil {
-				log.Errorf("couldn't get the context: %s.", err)
+				c.log.Errorf("couldn't get the context: %s.", err)
 				context = ""
 			}
 
 			if namespace, err = argoutil.GetNamespace(); err != nil {
-				log.Errorf("couldn't get the namespace: %s.", err)
+				c.log.Errorf("couldn't get the namespace: %s.", err)
 				namespace = ""
 			}
 
