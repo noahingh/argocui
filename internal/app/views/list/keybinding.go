@@ -73,7 +73,7 @@ func (c *Config) keybinding(g *gocui.Gui, s argo.UseCase, bus EventBus.Bus) erro
 	// 	return err
 	// }
 
-	if err := g.SetKeybinding(viewName, gocui.KeyCtrlZ, gocui.ModNone,
+	if err := g.SetKeybinding(viewName, gocui.KeyBackspace2, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			_, py, _ := viewutil.GetCursorPosition(g, v)
 			key, err := c.getKeyAtCursor(py)
