@@ -10,24 +10,24 @@ const (
 	eventSetNamePattern = "list:set-name-pattern"
 )
 
-// Subscribe set events to be triggered in other views.
-func Subscribe(g *gocui.Gui, bus EventBus.Bus) error {
+// subscribe set events to be triggered in other views.
+func (c *Config) subscribe(g *gocui.Gui, bus EventBus.Bus) error {
 	if err := bus.Subscribe(eventSetView, func() {
-		log.Info("set the current view list.")
+		c.log.Info("set the current view list.")
 		g.SetCurrentView(viewName)
 	}); err != nil {
 		return err
 	}
 
 	if err := bus.Subscribe(eventSetNamePattern, func(pattern string) {
-		if pattern == conf.namePattern {
+		if pattern == c.namePattern {
 			return
 		}
 
-		log.Infof("set the name of pattern %s.", pattern)
-		conf.namePattern = pattern
+		c.log.Infof("set the name of pattern %s.", pattern)
+		c.namePattern = pattern
 
-		log.Info("init cursor of the view.")
+		c.log.Info("init cursor of the view.")
 		v, _ := g.View(viewName)
 
 		v.SetOrigin(0, 0)

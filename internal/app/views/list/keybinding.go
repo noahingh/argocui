@@ -10,12 +10,14 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-// Keybinding bind keys on the list view.
-func Keybinding(g *gocui.Gui, s argo.UseCase, bus EventBus.Bus) error {
+func (c *Config) keybinding(g *gocui.Gui, s argo.UseCase, bus EventBus.Bus) error {
 	if err := g.SetKeybinding(viewName, '/', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
-			log.Debug("publish the event: search:set-view.")
-			bus.Publish("search:set-view")
+			const (
+				eventSetSearchView = "search:set-view"
+			)
+			c.log.Debugf("publish the event: search: %s", eventSetSearchView)
+			bus.Publish(eventSetSearchView)
 			return nil
 		}); err != nil {
 		return err
@@ -74,16 +76,16 @@ func Keybinding(g *gocui.Gui, s argo.UseCase, bus EventBus.Bus) error {
 	if err := g.SetKeybinding(viewName, gocui.KeyCtrlZ, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			_, py, _ := viewutil.GetCursorPosition(g, v)
-			key, err := getKeyAtCursor(py)
+			key, err := c.getKeyAtCursor(py)
 			if err != nil {
-				log.Errorf("fail to get key: %s", err)
+				c.log.Errorf("fail to get key: %s", err)
 				return nil
 			}
 
-			log.Infof("delete the workflow: %s.", key)
+			c.log.Infof("delete the workflow: %s.", key)
 			err = s.Delete(key)
 			if err != nil {
-				log.Errorf("fail to delete the workflow: %s", err)
+				c.log.Errorf("fail to delete the workflow: %s", err)
 				return nil
 			}
 
@@ -94,13 +96,13 @@ func Keybinding(g *gocui.Gui, s argo.UseCase, bus EventBus.Bus) error {
 	return nil
 }
 
-func getKeyAtCursor(cursor int) (string, error) {
+func (c *Config) getKeyAtCursor(cursor int) (string, error) {
 	idx := cursor - upperBoundOfCursor
-	if idx < 0 || idx > len(conf.cache) {
+	if idx < 0 || idx > len(c.cache) {
 		return "", fmt.Errorf("cursor out of range: %d", cursor)
 	}
 
-	w := conf.cache[idx]
+	w := c.cache[idx]
 	key, _ := cache.MetaNamespaceKeyFunc(w)
 	return key, nil
 }

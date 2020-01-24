@@ -7,29 +7,26 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Configuration of view.
-type config struct {
+// Config is the configuration of list.
+type Config struct {
 	namespace   string
 	namePattern string
 	cache       []*wf.Workflow
+	log *logrus.Entry
 }
 
-func (c config) pattern() string {
-	return fmt.Sprintf("%s/*%s*", c.namespace, c.namePattern)
-}
-
-var (
-	// the configuration of the list view.
-	conf config
-	log = logrus.WithFields(logrus.Fields{
-		"pkg": "list",
-	})
-)
-
-func init() {
-	conf = config{
+// NewConfig create a new config of list view.
+func NewConfig() *Config {
+	return &Config{
 		namespace:   "*",
 		namePattern: "*",
 		cache:       []*wf.Workflow{},
+		log: logrus.WithFields(logrus.Fields{
+			"pkg": "list",
+		}),
 	}
+}
+
+func (c *Config) pattern() string {
+	return fmt.Sprintf("%s/*%s*", c.namespace, c.namePattern)
 }

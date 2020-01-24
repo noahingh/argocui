@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/asaskevich/EventBus"
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	h "github.com/argoproj/pkg/humanize"
 	"github.com/hanjunlee/argocui/pkg/argo"
@@ -19,7 +20,7 @@ const (
 )
 
 // Layout lay out the list view.
-func Layout(g *gocui.Gui, s argo.UseCase, x0, y0, x1, y1 int) error {
+func (c *Config) Layout(g *gocui.Gui, s argo.UseCase, bus EventBus.Bus, x0, y0, x1, y1 int) error {
 	var (
 		period = 1 * time.Second
 	)
@@ -44,8 +45,8 @@ func Layout(g *gocui.Gui, s argo.UseCase, x0, y0, x1, y1 int) error {
 		go viewutil.RefreshViewPeriodic(g, v, period, func() error {
 			v.Clear()
 
-			wfs := s.Search(conf.pattern())
-			conf.cache = wfs
+			wfs := s.Search(c.pattern())
+			c.cache = wfs
 
 			err := render(v, toRows(wfs))
 			if err != nil {
@@ -53,6 +54,9 @@ func Layout(g *gocui.Gui, s argo.UseCase, x0, y0, x1, y1 int) error {
 			}
 			return nil
 		})
+
+		c.keybinding(g, s, bus)
+		c.subscribe(g, bus)
 	}
 
 	return nil
