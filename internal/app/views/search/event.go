@@ -10,9 +10,9 @@ const (
 )
 
 // Subscribe set events to be triggered in other views.
-func Subscribe(g *gocui.Gui, bus EventBus.Bus) error {
+func (c *Config) Subscribe(g *gocui.Gui, bus EventBus.Bus) error {
 	if err := bus.Subscribe(eventSetView, func() {
-		log.Info("set the current view search.")
+		c.log.Info("set the current view search.")
 		g.SetCurrentView(viewName)
 	}); err != nil {
 		return err
