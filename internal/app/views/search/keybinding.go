@@ -8,8 +8,8 @@ import (
 	"github.com/jroimartin/gocui"
 )
 
-// Keybinding the keybinding of the search view.
-func (c *Config) Keybinding(g *gocui.Gui, s argo.UseCase, bus EventBus.Bus) error {
+// keybinding the keybinding of the search view.
+func (c *Config) keybinding(g *gocui.Gui, s argo.UseCase, bus EventBus.Bus) error {
 	if err := g.SetKeybinding(viewName, gocui.KeyEnter, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			const (
