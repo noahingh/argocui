@@ -5,7 +5,6 @@ import (
 
 	"github.com/hanjunlee/argocui/pkg/util/color"
 	"github.com/jroimartin/gocui"
-	"github.com/sirupsen/logrus"
 )
 
 const (
