@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	h "github.com/argoproj/pkg/humanize"
 	"github.com/hanjunlee/argocui/pkg/argo"
@@ -18,23 +17,6 @@ const (
 	viewName           = "list"
 	upperBoundOfCursor = 2
 )
-
-var (
-	// the configuration of the list view.
-	conf config
-	log = logrus.WithFields(logrus.Fields{
-		"pkg": "list",
-		"file": "layout.go",
-	})
-)
-
-func init() {
-	conf = config{
-		namespace:   "*",
-		namePattern: "*",
-		cache:       []*wf.Workflow{},
-	}
-}
 
 // Layout lay out the list view.
 func Layout(s argo.UseCase, g *gocui.Gui, x0, y0, x1, y1 int) error {
