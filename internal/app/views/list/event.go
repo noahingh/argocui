@@ -13,7 +13,7 @@ const (
 )
 
 // Subscribe set events to be triggered in other views.
-func Subscribe(g *gocui.Gui, bus *EventBus.EventBus) error {
+func Subscribe(g *gocui.Gui, bus EventBus.Bus) error {
 	if err := bus.Subscribe(SetView, func() {
 		log.Info("set the current view list.")
 		g.SetCurrentView(viewName)

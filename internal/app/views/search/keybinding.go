@@ -16,7 +16,7 @@ var (
 )
 
 // Keybinding the keybinding of the search view.
-func Keybinding(g *gocui.Gui, s argo.UseCase, bus *EventBus.EventBus) error {
+func Keybinding(g *gocui.Gui, s argo.UseCase, bus EventBus.Bus) error {
 	if err := g.SetKeybinding(viewName, gocui.KeyEnter, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			pattern, _ := v.Line(0)

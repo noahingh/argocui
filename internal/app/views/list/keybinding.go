@@ -11,7 +11,7 @@ import (
 )
 
 // Keybinding bind keys on the list view.
-func Keybinding(g *gocui.Gui, s argo.UseCase, bus *EventBus.EventBus) error {
+func Keybinding(g *gocui.Gui, s argo.UseCase, bus EventBus.Bus) error {
 	if err := g.SetKeybinding(viewName, '/', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			log.Debug("publish the event: search:set-view.")
