@@ -5,6 +5,7 @@ import (
 	"time"
 
 	informers "github.com/argoproj/argo/pkg/client/informers/externalversions"
+	"github.com/asaskevich/EventBus"
 	"github.com/hanjunlee/argocui/internal/app"
 	"github.com/hanjunlee/argocui/pkg/argo"
 	"github.com/hanjunlee/argocui/pkg/argo/repo"
@@ -47,9 +48,14 @@ func main() {
 
 	app.ConfigureGui(g)
 
-	g.SetManagerFunc(app.ManagerFunc(service, g))
+	g.SetManagerFunc(app.ManagerFunc(g, service))
 
-	if err := app.Keybinding(service, g); err != nil {
+	bus := EventBus.New()
+	if err := app.Subscribe(g, bus); err != nil {
+		log.Panic(err)
+	}
+
+	if err := app.Keybinding(g, service, bus); err != nil {
 		log.Panic(err)
 	}
 

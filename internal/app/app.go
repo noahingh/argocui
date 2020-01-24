@@ -6,6 +6,7 @@ import (
 	"github.com/asaskevich/EventBus"
 	"github.com/hanjunlee/argocui/internal/app/views/info"
 	"github.com/hanjunlee/argocui/internal/app/views/list"
+	"github.com/hanjunlee/argocui/internal/app/views/search"
 	"github.com/hanjunlee/argocui/pkg/argo"
 )
 
@@ -18,7 +19,7 @@ func ConfigureGui(g *gocui.Gui) {
 }
 
 // ManagerFunc return the manager function.
-func ManagerFunc(s argo.UseCase, g *gocui.Gui) func(g *gocui.Gui) error {
+func ManagerFunc(g *gocui.Gui, s argo.UseCase) func(g *gocui.Gui) error {
 	return func(g *gocui.Gui) error {
 		var (
 			err error
@@ -36,12 +37,12 @@ func ManagerFunc(s argo.UseCase, g *gocui.Gui) func(g *gocui.Gui) error {
 			return err
 		}
 
-		// err = layoutSearch(g, 0, maxY/4-2, maxX-1, maxY/4)
-		// if err != nil {
-		// 	return err
-		// }
+		err = search.Layout(g, s, 0, maxY/4-2, maxX-1, maxY/4)
+		if err != nil {
+			return err
+		}
 
-		err = list.Layout(s, g, 0, maxY/4+1, maxX-1, maxY-1)
+		err = list.Layout(g, s, 0, maxY/4+1, maxX-1, maxY-1)
 		if err != nil {
 			return err
 		}
@@ -50,7 +51,7 @@ func ManagerFunc(s argo.UseCase, g *gocui.Gui) func(g *gocui.Gui) error {
 }
 
 // Keybinding bind keys on GUI.
-func Keybinding(s argo.UseCase, g *gocui.Gui, bus *EventBus.EventBus) error {
+func Keybinding(g *gocui.Gui, s argo.UseCase, bus EventBus.Bus) error {
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return gocui.ErrQuit
@@ -58,11 +59,11 @@ func Keybinding(s argo.UseCase, g *gocui.Gui, bus *EventBus.EventBus) error {
 		return err
 	}
 
-	// if err := keybindingSearch(g); err != nil {
-	// 	return err
-	// }
+	if err := search.Keybinding(g, s, bus); err != nil {
+		return err
+	}
 
-	if err := list.Keybinding(s, g, bus); err != nil {
+	if err := list.Keybinding(g, s, bus); err != nil {
 		return err
 	}
 
@@ -70,6 +71,19 @@ func Keybinding(s argo.UseCase, g *gocui.Gui, bus *EventBus.EventBus) error {
 	// if err := keybindingLogs(g); err != nil {
 	// 	return err
 	// }
+
+	return nil
+}
+
+// Subscribe bind subscribes for each views.
+func Subscribe(g *gocui.Gui, bus EventBus.Bus) error {
+	if err := search.Subscribe(g, bus); err != nil {
+		return err
+	}
+
+	if err := list.Subscribe(g, bus); err != nil {
+		return err
+	}
 
 	return nil
 }
