@@ -19,7 +19,7 @@ const (
 )
 
 // Layout lay out the list view.
-func Layout(s argo.UseCase, g *gocui.Gui, x0, y0, x1, y1 int) error {
+func Layout(g *gocui.Gui, s argo.UseCase, x0, y0, x1, y1 int) error {
 	var (
 		period = 1 * time.Second
 	)

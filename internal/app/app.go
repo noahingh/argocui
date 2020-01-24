@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/jroimartin/gocui"
 
+	"github.com/asaskevich/EventBus"
 	"github.com/hanjunlee/argocui/internal/app/views/info"
 	"github.com/hanjunlee/argocui/internal/app/views/list"
 	"github.com/hanjunlee/argocui/pkg/argo"
@@ -49,7 +50,7 @@ func ManagerFunc(s argo.UseCase, g *gocui.Gui) func(g *gocui.Gui) error {
 }
 
 // Keybinding bind keys on GUI.
-func Keybinding(s argo.UseCase, g *gocui.Gui) error {
+func Keybinding(s argo.UseCase, g *gocui.Gui, bus *EventBus.EventBus) error {
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return gocui.ErrQuit
@@ -61,7 +62,7 @@ func Keybinding(s argo.UseCase, g *gocui.Gui) error {
 	// 	return err
 	// }
 
-	if err := list.Keybinding(s, g); err != nil {
+	if err := list.Keybinding(s, g, bus); err != nil {
 		return err
 	}
 
@@ -72,4 +73,3 @@ func Keybinding(s argo.UseCase, g *gocui.Gui) error {
 
 	return nil
 }
-

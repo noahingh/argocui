@@ -3,6 +3,7 @@ package list
 import (
 	"fmt"
 
+	"github.com/asaskevich/EventBus"
 	"github.com/hanjunlee/argocui/pkg/argo"
 	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
 	"github.com/jroimartin/gocui"
@@ -10,14 +11,15 @@ import (
 )
 
 // Keybinding bind keys on the list view.
-func Keybinding(s argo.UseCase, g *gocui.Gui) error {
-	// if err := g.SetKeybinding(viewName, '/', gocui.ModNone,
-	// 	func(g *gocui.Gui, v *gocui.View) error {
-	// 		g.SetCurrentView("search")
-	// 		return nil
-	// 	}); err != nil {
-	// 	return err
-	// }
+func Keybinding(g *gocui.Gui, s argo.UseCase, bus *EventBus.EventBus) error {
+	if err := g.SetKeybinding(viewName, '/', gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			log.Debug("publish the event: search:set-view.")
+			bus.Publish("search:set-view")
+			return nil
+		}); err != nil {
+		return err
+	}
 
 	if err := g.SetKeybinding(viewName, 'k', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
