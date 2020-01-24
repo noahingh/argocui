@@ -19,7 +19,7 @@ type Config struct {
 func NewConfig() *Config {
 	return &Config{
 		namespace:   "*",
-		namePattern: "*",
+		namePattern: "",
 		cache:       []*wf.Workflow{},
 		log: logrus.WithFields(logrus.Fields{
 			"pkg": "list",
