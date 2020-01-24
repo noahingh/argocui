@@ -134,11 +134,8 @@ func toRows(wfs []*wf.Workflow) [][]string {
 func (cm *collectionManager) keybinding(g *gocui.Gui) error {
 	if err := g.SetKeybinding(collectionViewName, '/', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
-			const (
-				eventSetSearchView = "search:set-view"
-			)
-			cm.log.Debugf("publish the event: search: %s", eventSetSearchView)
-			cm.bus.Publish(eventSetSearchView)
+			cm.log.Debugf("publish the event: search: %s", eventSubSetView)
+			cm.bus.Publish(eventSubSetView)
 			return nil
 		}); err != nil {
 		return err
@@ -234,23 +231,19 @@ func (cm *collectionManager) getKeyAtCursor(cursor int) (string, error) {
 
 // subscribes of the collection view.
 const (
-	eventCollectionSet         = "collection:set-view"
-	eventCollectionNamePattern = "collection:set-name-pattern"
+	eventCollectionSetView         = "collection:set-view"
+	eventCollectionSetNamePattern = "collection:set-name-pattern"
 )
 
 func (cm *collectionManager) subscribe(g *gocui.Gui) error {
-	const (
-		viewName = "collection"
-	)
-
-	if err := cm.bus.Subscribe(eventCollectionSet, func() {
+	if err := cm.bus.Subscribe(eventCollectionSetView, func() {
 		cm.log.Info("set the current view list.")
 		g.SetCurrentView(collectionViewName)
 	}); err != nil {
 		return err
 	}
 
-	if err := cm.bus.Subscribe(eventCollectionNamePattern, func(pattern string) {
+	if err := cm.bus.Subscribe(eventCollectionSetNamePattern, func(pattern string) {
 		if pattern == cm.namePattern {
 			return
 		}
