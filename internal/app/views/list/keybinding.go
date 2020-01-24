@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hanjunlee/argocui/pkg/argo"
-	"github.com/hanjunlee/argocui/pkg/view"
+	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
 	"github.com/jroimartin/gocui"
 	"k8s.io/client-go/tools/cache"
 )
@@ -21,35 +21,35 @@ func Keybinding(s argo.UseCase, g *gocui.Gui) error {
 
 	if err := g.SetKeybinding(viewName, 'k', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
-			return view.MoveCursorUp(g, v, upperBoundOfCursor)
+			return viewutil.MoveCursorUp(g, v, upperBoundOfCursor)
 		}); err != nil {
 		return err
 	}
 
 	if err := g.SetKeybinding(viewName, 'j', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
-			return view.MoveCursorDown(g, v)
+			return viewutil.MoveCursorDown(g, v)
 		}); err != nil {
 		return err
 	}
 
 	if err := g.SetKeybinding(viewName, 'H', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
-			return view.MoveCursorTop(g, v, upperBoundOfCursor)
+			return viewutil.MoveCursorTop(g, v, upperBoundOfCursor)
 		}); err != nil {
 		return err
 	}
 
 	if err := g.SetKeybinding(viewName, 'L', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
-			return view.MoveCursorBottom(g, v)
+			return viewutil.MoveCursorBottom(g, v)
 		}); err != nil {
 		return err
 	}
 
 	// if err := g.SetKeybinding(viewName, gocui.KeyCtrlL, gocui.ModNone,
 	// 	func(g *gocui.Gui, v *gocui.View) error {
-	// 		_, py, _ := view.GetCursorPosition(g, v)
+	// 		_, py, _ := viewutil.GetCursorPosition(g, v)
 	// 		key, err := uiClientset.List.GetKeyAtLine(py)
 	// 		if err != nil {
 	// 			return err
@@ -71,7 +71,7 @@ func Keybinding(s argo.UseCase, g *gocui.Gui) error {
 
 	if err := g.SetKeybinding(viewName, gocui.KeyCtrlZ, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
-			_, py, _ := view.GetCursorPosition(g, v)
+			_, py, _ := viewutil.GetCursorPosition(g, v)
 			key, err := getKeyAtCursor(py)
 			if err != nil {
 				log.Errorf("fail to get key: %s", err)

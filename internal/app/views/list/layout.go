@@ -10,7 +10,7 @@ import (
 	"github.com/hanjunlee/argocui/pkg/argo"
 	tw "github.com/hanjunlee/argocui/pkg/table/tablewriter"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
-	"github.com/hanjunlee/argocui/pkg/view"
+	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
 	"github.com/jroimartin/gocui"
 )
 
@@ -59,7 +59,7 @@ func Layout(s argo.UseCase, g *gocui.Gui, x0, y0, x1, y1 int) error {
 		g.SetCurrentView(viewName)
 
 		// set refresh
-		go view.RefreshViewPeriodic(g, v, period, func() error {
+		go viewutil.RefreshViewPeriodic(g, v, period, func() error {
 			v.Clear()
 
 			wfs := s.Search(conf.pattern())
