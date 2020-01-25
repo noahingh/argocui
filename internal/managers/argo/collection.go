@@ -65,9 +65,9 @@ func (cm *collectionManager) layout(g *gocui.Gui, x0, y0, x1, y1 int) error {
 
 		// settings of list view
 		v.Highlight = true
+		v.Frame = false
 		v.SelBgColor = gocui.ColorYellow
 		v.SelFgColor = gocui.ColorBlack
-		v.Frame = false
 		v.SetCursor(0, collectionUpperBound)
 
 		// focus on
@@ -80,7 +80,7 @@ func (cm *collectionManager) layout(g *gocui.Gui, x0, y0, x1, y1 int) error {
 			wfs := cm.uc.Search(cm.pattern())
 			cm.cache = wfs
 
-			err := render(v, toRows(wfs))
+			err := cm.render(v, cm.toRows(wfs))
 			if err != nil {
 				fmt.Fprintf(v, "error occurs: %s", err)
 			}
@@ -95,7 +95,7 @@ func (cm *collectionManager) layout(g *gocui.Gui, x0, y0, x1, y1 int) error {
 }
 
 // render present workflows as table-like format.
-func render(v *gocui.View, datas [][]string) error {
+func (cm *collectionManager) render(v *gocui.View, datas [][]string) error {
 	var width, nameWidth int
 
 	// set widths for each column.
@@ -114,7 +114,7 @@ func render(v *gocui.View, datas [][]string) error {
 	return t.Render()
 }
 
-func toRows(wfs []*wf.Workflow) [][]string {
+func (cm *collectionManager) toRows(wfs []*wf.Workflow) [][]string {
 	var (
 		rows = make([][]string, 0)
 	)
@@ -173,6 +173,18 @@ func (cm *collectionManager) keybinding(g *gocui.Gui) error {
 
 	if err := g.SetKeybinding(collectionViewName, gocui.KeyCtrlL, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
+			_, py, _ := viewutil.GetCursorPosition(g, v)
+
+			key, err := cm.getKeyAtCursor(py)
+			if err != nil {
+				cm.log.Errorf("fail to follow the workflow: %s", err)
+				return nil
+			}
+
+			cm.log.Info("publish follow the workflow.")
+			cm.bus.Publish(eventFollowerFollowWorkflow, key)
+
+			cm.log.Info("publish to set the follower current view.")
 			cm.bus.Publish(eventFollowerSetView)
 			return nil
 		}); err != nil {
@@ -182,6 +194,7 @@ func (cm *collectionManager) keybinding(g *gocui.Gui) error {
 	if err := g.SetKeybinding(collectionViewName, gocui.KeyBackspace2, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			_, py, _ := viewutil.GetCursorPosition(g, v)
+
 			key, err := cm.getKeyAtCursor(py)
 			if err != nil {
 				cm.log.Errorf("fail to get key: %s", err)
