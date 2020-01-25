@@ -141,12 +141,12 @@ func (a *ArgoRepository) logsWorkflow(ctx context.Context, ch chan<- argo.Log, w
 	}
 
 	for _, n := range nodes {
-		ns, n := w.Namespace, n.ID
+		ns, n, dn := w.Namespace, n.ID, n.DisplayName
 
 		// get logs from nodes at background.
 		go func() {
 			a.log.Tracef("log '%s' node.", n)
-			err := a.logsPod(ctx, ch, ns, n)
+			err := a.logsPod(ctx, ch, ns, n, dn)
 			if err != nil {
 				a.log.Errorf("couldn't get logs from '%s' node: %s.", n, err)
 				return
@@ -157,7 +157,7 @@ func (a *ArgoRepository) logsWorkflow(ctx context.Context, ch chan<- argo.Log, w
 	return nil
 }
 
-func (a *ArgoRepository) logsPod(ctx context.Context, ch chan<- argo.Log, ns string, n string) error {
+func (a *ArgoRepository) logsPod(ctx context.Context, ch chan<- argo.Log, ns string, n string, dn string) error {
 	const (
 		mainContainerName = "main"
 	)
@@ -197,6 +197,7 @@ func (a *ArgoRepository) logsPod(ctx context.Context, ch chan<- argo.Log, ns str
 			}
 
 			ch <- argo.Log{
+				DisplayName: dn,
 				Pod:     n,
 				Message: m,
 				Time:    time,

@@ -159,6 +159,7 @@ func (f *followerManager) layout(g *gocui.Gui, x0, y0, x1, y1 int) error {
 
 }
 
+// presentation layer to display logs.
 func (f *followerManager) render(v *gocui.View, datas [][]string) error {
 	var width int
 
@@ -178,9 +179,9 @@ func (f *followerManager) datas() [][]string {
 	d := [][]string{}
 
 	for _, l := range f.logs {
-		pod, message := l.Pod, l.Message
+		dn, pod, message := l.DisplayName, l.Pod, l.Message
 		podColor := f.podColor[pod]
-		d = append(d, []string{color.ChangeColor(pod+":", podColor), message})
+		d = append(d, []string{color.ChangeColor(dn+":", podColor), message})
 	}
 
 	return d
