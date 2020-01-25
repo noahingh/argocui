@@ -7,13 +7,14 @@ import (
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	h "github.com/argoproj/pkg/humanize"
 	"github.com/asaskevich/EventBus"
+	"github.com/jroimartin/gocui"
+	log "github.com/sirupsen/logrus"
+	"k8s.io/client-go/tools/cache"
+	
 	"github.com/hanjunlee/argocui/pkg/argo"
 	tw "github.com/hanjunlee/argocui/pkg/table/tablewriter"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
-	"github.com/jroimartin/gocui"
-	log "github.com/sirupsen/logrus"
-	"k8s.io/client-go/tools/cache"
 )
 
 const (
@@ -41,6 +42,7 @@ func newCollectionManager(uc argo.UseCase, bus EventBus.Bus) *collectionManager 
 		bus:         bus,
 		log: log.WithFields(log.Fields{
 			"pkg": "argo manager",
+			"file": "collection.go",
 		}),
 	}
 }
@@ -169,27 +171,13 @@ func (cm *collectionManager) keybinding(g *gocui.Gui) error {
 		return err
 	}
 
-	// if err := g.SetKeybinding(collectionViewName, gocui.KeyCtrlL, gocui.ModNone,
-	// 	func(g *gocui.Gui, v *gocui.View) error {
-	// 		_, py, _ := viewutil.GetCursorPosition(g, v)
-	// 		key, err := uiClientset.List.GetKeyAtLine(py)
-	// 		if err != nil {
-	// 			return err
-	// 		}
-
-	// 		log.Infof("set the client of logs '%s'", key)
-	// 		uiClientset.Logs.SetKey(key)
-
-	// 		lv, err := newLogsView(g)
-	// 		if err != nil {
-	// 			return err
-	// 		}
-
-	// 		g.SetCurrentView(lv.Name())
-	// 		return nil
-	// 	}); err != nil {
-	// 	return err
-	// }
+	if err := g.SetKeybinding(collectionViewName, gocui.KeyCtrlL, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			cm.bus.Publish(eventFollowerSetView)
+			return nil
+		}); err != nil {
+		return err
+	}
 
 	if err := g.SetKeybinding(collectionViewName, gocui.KeyBackspace2, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
@@ -229,7 +217,7 @@ func (cm *collectionManager) getKeyAtCursor(cursor int) (string, error) {
 	return key, nil
 }
 
-// subscribes of the collection view.
+// subscribes events of the collection.
 const (
 	eventCollectionSetView         = "collection:set-view"
 	eventCollectionSetNamePattern = "collection:set-name-pattern"
@@ -238,6 +226,7 @@ const (
 func (cm *collectionManager) subscribe(g *gocui.Gui) error {
 	if err := cm.bus.Subscribe(eventCollectionSetView, func() {
 		cm.log.Info("set the current view list.")
+		g.SetViewOnTop(collectionViewName)
 		g.SetCurrentView(collectionViewName)
 	}); err != nil {
 		return err
