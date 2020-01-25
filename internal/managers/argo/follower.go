@@ -247,6 +247,11 @@ func (f *followerManager) subscribe(g *gocui.Gui) error {
 	if err := f.bus.Subscribe(eventFollowerFollowWorkflow, func(key string) {
 		f.logger.Infof("follow the workflow: %s.", key)
 		f.follow(key)
+
+		f.logger.Infof("init the cursor.")
+		v, _ := g.View(followerViewName)
+		v.SetCursor(0, followerUpperBound)
+		v.SetOrigin(0, 0)
 	}); err != nil {
 		return err
 	}
