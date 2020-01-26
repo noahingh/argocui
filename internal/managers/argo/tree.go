@@ -112,12 +112,6 @@ func (t *treeManager) layout(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	return nil
 }
 
-func (t *treeManager) debug(d [][]string) {
-	for _, r := range d {
-		t.log.Debug(r[0], ",", r[1], ",", r[2], ",", r[3])
-	}
-}
-
 func (t *treeManager) renderInfo(v *gocui.View, datas [][]string) error {
 	var width int
 
@@ -137,7 +131,7 @@ func (t *treeManager) renderRoot(v *gocui.View, datas [][]string) error {
 	w := tw.NewTableWriter(v)
 
 	w.SetColumns([]string{"STEP", "PODNAME", "DURATION", "MESSAGE"})
-	w.SetColumnWidths([]int{50, 50, 10, width - 90})
+	w.SetColumnWidths([]int{40, 40, 10, width - 90})
 	w.AppendBulk(datas)
 	return w.Render()
 }
