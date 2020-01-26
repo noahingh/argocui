@@ -2,30 +2,37 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 	"time"
-
-	informers "github.com/argoproj/argo/pkg/client/informers/externalversions"
-	"github.com/asaskevich/EventBus"
+	"flag"
+	
 	am "github.com/hanjunlee/argocui/internal/managers/argo"
 	"github.com/hanjunlee/argocui/internal/managers/etc"
+	"github.com/hanjunlee/argocui/internal/config"
 	"github.com/hanjunlee/argocui/pkg/argo"
 	"github.com/hanjunlee/argocui/pkg/argo/repo"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
+
+	informers "github.com/argoproj/argo/pkg/client/informers/externalversions"
+	"github.com/asaskevich/EventBus"
 	"github.com/jroimartin/gocui"
 	log "github.com/sirupsen/logrus"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-func init() {
-	log.SetLevel(log.DebugLevel)
-	file, err := os.OpenFile(".argocui.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err == nil {
-		log.SetOutput(file)
-	} else {
-		log.Info("Failed to log to file, using default stderr")
-	}
-}
+var (
+	debug = flag.Bool("debug", false, "Debug mode.")
+	trace = flag.Bool("trace", false, "Debug as trace level.")
+	readOnly = flag.Bool("ro", false, "Read only mode.")
+)
 
 func main() {
+	// flag command
+	flag.Parse()
+	setConfig()
+	setLog()
+
+	// create a new repo and syncronize.
 	var (
 		service *argo.Service
 	)
@@ -35,7 +42,6 @@ func main() {
 	factory := informers.NewSharedInformerFactory(argoClientset, 1*time.Minute)
 	argoInformer := factory.Argoproj().V1alpha1().Workflows()
 
-	// create a new repo and syncronize.
 	repo := repo.NewArgoRepository(argoClientset, argoInformer, kubeClientset)
 
 	neverStop := make(chan struct{}, 1)
@@ -64,4 +70,28 @@ func main() {
 	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
 		log.Panic(err)
 	}
+}
+func setConfig() {
+	if *readOnly {
+		config.ReadOnly = true
+	}
+}
+
+func setLog() {
+	log.SetLevel(log.InfoLevel)
+	if *debug {
+		log.SetLevel(log.DebugLevel)
+	}
+	if *trace {
+		log.SetLevel(log.TraceLevel)
+	}
+
+	path := filepath.Join(os.Getenv("HOME"), "/.argocui/log")
+	log.SetOutput(&lumberjack.Logger{
+		Filename: path,
+		MaxSize:    500,
+		MaxBackups: 1,
+		MaxAge:     7, 
+		Compress:   true, 
+	})
 }

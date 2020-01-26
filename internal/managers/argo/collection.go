@@ -4,17 +4,18 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hanjunlee/argocui/pkg/argo"
+	tw "github.com/hanjunlee/argocui/pkg/table/tablewriter"
+	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
+	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
+	"github.com/hanjunlee/argocui/internal/config"
+
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	h "github.com/argoproj/pkg/humanize"
 	"github.com/asaskevich/EventBus"
 	"github.com/jroimartin/gocui"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/tools/cache"
-
-	"github.com/hanjunlee/argocui/pkg/argo"
-	tw "github.com/hanjunlee/argocui/pkg/table/tablewriter"
-	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
-	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
 )
 
 const (
@@ -213,6 +214,11 @@ func (cm *collectionManager) keybinding(g *gocui.Gui) error {
 
 	if err := g.SetKeybinding(collectionViewName, gocui.KeyBackspace2, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
+			if config.ReadOnly {
+				cm.log.Warn("couldn't delete, it is read only mode.")
+				return nil
+			}
+
 			_, py, _ := viewutil.GetCursorPosition(g, v)
 
 			key, err := cm.getKeyAtCursor(py)

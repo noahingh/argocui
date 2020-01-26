@@ -30,6 +30,7 @@ require (
 	golang.org/x/time v0.0.0-20190921001708-c4c64cad1fd0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/jcmturner/goidentity.v2 v2.0.0 // indirect
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	k8s.io/api v0.0.0-20191004120003-3a12735a829a
 	k8s.io/apimachinery v0.0.0-20191004115701-31ade1b30762
 	k8s.io/client-go v0.0.0-20191004120415-b2f42092e376
