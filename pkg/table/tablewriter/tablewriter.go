@@ -5,7 +5,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/willf/pad"
+	// "github.com/willf/pad"
+	padUtf8 "github.com/willf/pad/utf8"
 )
 
 // TableWriter render the data as table-like format.
@@ -132,7 +133,7 @@ func getLine(row []string, widths []int) string {
 	for i, word := range row {
 		width := widths[i]
 		word = dotdotdot(word, width)
-		ret = ret + pad.Right(word, width, " ")
+		ret = ret + padUtf8.Right(word, width, " ")
 	}
 	return ret
 }
