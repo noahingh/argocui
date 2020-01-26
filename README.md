@@ -12,7 +12,7 @@ It support to manage Argo resource by CUI.
 
 The simple video clip for Argo CUI.
 
-![ArgoCUI](./img/argocui-0.0.1.mp4)
+![ArgoCUI](./img/argocui-0.0.1.gif)
 
 ## Command
 
