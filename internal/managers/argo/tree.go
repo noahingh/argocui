@@ -77,7 +77,7 @@ func (t *treeManager) layout(g *gocui.Gui, x0, y0, x1, y1 int) error {
 
 			w := t.uc.Get(t.key)
 			if w == nil {
-				t.log.Warnf("there isn't the workflow", t.key)
+				t.log.Warnf("there isn't the workflow: %s.", t.key)
 				return nil
 			}
 

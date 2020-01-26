@@ -83,10 +83,10 @@ func (s *subManager) keybinding(g *gocui.Gui) error {
 			pattern, _ := v.Line(0)
 			pattern = trimLine(pattern)
 
-			s.log.Debug("publish the event: list: %s.", eventCollectionSetNamePattern)
+			s.log.Debugf("publish the event: list: %s.", eventCollectionSetNamePattern)
 			s.bus.Publish(eventCollectionSetNamePattern, pattern)
 
-			s.log.Debug("publish the event: list: %s.", eventCollectionSetView)
+			s.log.Debugf("publish the event: list: %s.", eventCollectionSetView)
 			s.bus.Publish(eventCollectionSetView)
 			return nil
 		}); err != nil {

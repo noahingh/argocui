@@ -1,0 +1,15 @@
+---
+kind: pipeline
+type: docker
+name: test
+
+steps:
+- name: lint
+  image: golang:1.13
+  commands:
+    - go vet ./...
+
+- name: unit-test
+  image: golang:1.12
+  commands:
+    - go test -coverprofile=coverage.out ./... 
