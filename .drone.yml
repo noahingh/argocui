@@ -36,9 +36,9 @@ steps:
       GOARCH: amd64
     commands:
       - >
-        go build \
-        -o dist/acui_darwin_amd64 \
-        -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" \
+        go build 
+        -o dist/acui_darwin_amd64 
+        -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" 
         ./cmd
     depends_on:
       - download
@@ -51,9 +51,9 @@ steps:
       GOARCH: amd64
     commands:
       - >
-        go build \
-        -o dist/acui_linux_amd64 \
-        -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" \
+        go build 
+        -o dist/acui_linux_amd64 
+        -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" 
         ./cmd
     depends_on:
       - download
@@ -66,9 +66,9 @@ steps:
       GOARCH: amd64
     commands:
       - >
-        go build \
-        -o dist/acui_windows_amd64.exe \
-        -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" \
+        go build 
+        -o dist/acui_windows_amd64.exe 
+        -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" 
         ./cmd
     depends_on:
       - download
