@@ -11,6 +11,7 @@ type Manager struct {
 	s *subManager
 	cm *collectionManager
 	f *followerManager
+	t *treeManager
 }
 
 // NewManager create a new manager of the Argo cui.
@@ -19,6 +20,7 @@ func NewManager(uc argo.UseCase, bus EventBus.Bus) *Manager {
 		s: newSubManager(uc, bus),
 		cm: newCollectionManager(uc, bus),
 		f: newFollowerManager(uc, bus),
+		t: newTreeManager(uc, bus),
 	}
 }
 
@@ -30,6 +32,10 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 	}
 
 	if err := m.f.layout(g, 0, y/4+3, x-1, y-1); err != nil {
+		return err
+	}
+
+	if err := m.t.layout(g, 0, y/4+3, x-1, y-1); err != nil {
 		return err
 	}
 

@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/hanjunlee/argocui/pkg/argo"
-	"github.com/hanjunlee/argocui/pkg/util/color"
 	tw "github.com/hanjunlee/argocui/pkg/table/tablewriter"
+	"github.com/hanjunlee/argocui/pkg/util/color"
 	"github.com/hanjunlee/argocui/pkg/util/view"
 
 	"github.com/asaskevich/EventBus"
@@ -27,7 +27,7 @@ type followerManager struct {
 	cancel context.CancelFunc
 
 	// store logs which comes from pods.
-	// if the key is the empty string the state is unfollow.
+	// if the key is an empty string the state is unfollow.
 	key      string
 	logs     logGroup
 	podColor map[string]gocui.Attribute

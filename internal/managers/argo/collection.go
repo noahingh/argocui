@@ -10,7 +10,7 @@ import (
 	"github.com/jroimartin/gocui"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/tools/cache"
-	
+
 	"github.com/hanjunlee/argocui/pkg/argo"
 	tw "github.com/hanjunlee/argocui/pkg/table/tablewriter"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
@@ -41,7 +41,7 @@ func newCollectionManager(uc argo.UseCase, bus EventBus.Bus) *collectionManager 
 		uc:          uc,
 		bus:         bus,
 		log: log.WithFields(log.Fields{
-			"pkg": "argo manager",
+			"pkg":  "argo manager",
 			"file": "collection.go",
 		}),
 	}
@@ -191,6 +191,26 @@ func (cm *collectionManager) keybinding(g *gocui.Gui) error {
 		return err
 	}
 
+	if err := g.SetKeybinding(collectionViewName, gocui.KeyCtrlG, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			_, py, _ := viewutil.GetCursorPosition(g, v)
+
+			key, err := cm.getKeyAtCursor(py)
+			if err != nil {
+				cm.log.Errorf("fail to follow the workflow: %s", err)
+				return nil
+			}
+
+			cm.log.Info("publish tree the workflow.")
+			cm.bus.Publish(eventTreeGetWorkflow, key)
+
+			cm.log.Info("publish to set the tree current view.")
+			cm.bus.Publish(eventTreeSetView)
+			return nil
+		}); err != nil {
+		return err
+	}
+
 	if err := g.SetKeybinding(collectionViewName, gocui.KeyBackspace2, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			_, py, _ := viewutil.GetCursorPosition(g, v)
@@ -232,7 +252,7 @@ func (cm *collectionManager) getKeyAtCursor(cursor int) (string, error) {
 
 // subscribes events of the collection.
 const (
-	eventCollectionSetView         = "collection:set-view"
+	eventCollectionSetView        = "collection:set-view"
 	eventCollectionSetNamePattern = "collection:set-name-pattern"
 )
 
