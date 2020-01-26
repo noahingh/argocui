@@ -2,6 +2,7 @@ package argo
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hanjunlee/argocui/pkg/argo"
@@ -87,11 +88,11 @@ func (t *treeManager) layout(g *gocui.Gui, x0, y0, x1, y1 int) error {
 				return nil
 			}
 
-			fmt.Fprintln(v, "")
+			width, _ := v.Size()
+			fmt.Fprintln(v, strings.Repeat(" ", width))
 
 			// the tree of a workflow.
 			root, _ := tree.GetTreeRoot(w)
-			t.debug(root)
 			if err = t.renderRoot(v, root); err != nil {
 				t.log.Error("failed to render root.")
 				return nil
@@ -131,7 +132,7 @@ func (t *treeManager) renderRoot(v *gocui.View, datas [][]string) error {
 	w := tw.NewTableWriter(v)
 
 	w.SetColumns([]string{"STEP", "PODNAME", "DURATION", "MESSAGE"})
-	w.SetColumnWidths([]int{40, 40, 10, width - 90})
+	w.SetColumnWidths([]int{40, 40, 15, width - 95})
 	w.AppendBulk(datas)
 	return w.Render()
 }
@@ -141,7 +142,7 @@ func (t *treeManager) renderExit(v *gocui.View, datas [][]string) error {
 
 	w := tw.NewTableWriter(v)
 
-	w.SetColumnWidths([]int{40, 40, 10, width - 90})
+	w.SetColumnWidths([]int{40, 40, 15, width - 95})
 	w.AppendBulk(datas)
 	return w.Render()
 }

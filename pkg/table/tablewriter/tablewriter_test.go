@@ -2,6 +2,7 @@ package tablewriter
 
 import (
 	"fmt"
+	"strings"
 	"io"
 	"reflect"
 	"testing"
@@ -93,6 +94,22 @@ func TestTableWriter_Render(t *testing.T) {
 				fmt.Sprintln("aaaaa" + "          " + "ccc  "),
 			},
 			wantErr: false,
+		},
+		{
+			name: "empty string",
+			fields: fields{
+				writer: &twriter{},
+				columnWidths: []int{5, 5, 5},
+				data: [][]string{
+					[]string{"aaaaa", "bbbbb", ""},
+					[]string{"aaaaa", "", "bbbbb"},
+				},
+			},
+			want: []string{
+				fmt.Sprintln("aaaaa" + "bbbbb" + "     "),
+				fmt.Sprintln("aaaaa" + "     " + "bbbbb"),
+			},
+			wantErr: false,
 
 		},
 	}
@@ -110,7 +127,7 @@ func TestTableWriter_Render(t *testing.T) {
 			}
 			w := tr.writer.(*twriter)
 			if got := w.buffer; !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("TableWriter.Render() got = %v, want %v", got, tt.want)
+				t.Errorf("TableWriter.Render() got = %v, want %v", strings.Join(got,""), strings.Join(tt.want, ""))
 			}
 		})
 	}

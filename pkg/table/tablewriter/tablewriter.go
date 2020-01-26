@@ -5,6 +5,8 @@ import (
 	"io"
 	"strings"
 
+	"github.com/hanjunlee/argocui/pkg/util/color"
+
 	// "github.com/willf/pad"
 	padUtf8 "github.com/willf/pad/utf8"
 )
@@ -126,12 +128,20 @@ func (t *TableWriter) getColumnCnt() int {
 }
 
 func getLine(row []string, widths []int) string {
+	const (
+		widthColor = 11
+	)
 	var (
 		ret = ""
 	)
 
 	for i, word := range row {
 		width := widths[i]
+		// complement the width for a color.
+		if color.HasColor(word) {
+			width = width + widthColor
+		}
+
 		word = dotdotdot(word, width)
 		ret = ret + padUtf8.Right(word, width, " ")
 	}
@@ -140,9 +150,7 @@ func getLine(row []string, widths []int) string {
 
 func dotdotdot(word string, size int) string {
 	if len(word) > size {
-		l := len(word)
-		// last charactor must have a space.
-		word = word[:l-4] + "..."
+		word = word[:size-3] + "..."
 	}
 	return word
 }

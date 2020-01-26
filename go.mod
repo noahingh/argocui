@@ -25,6 +25,7 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/valyala/fasttemplate v1.1.0 // indirect
 	github.com/willf/pad v0.0.0-20190207183901-eccfe5d84172
+	golang.org/x/exp v0.0.0-20190510132918-efd6b22b2522
 	golang.org/x/net v0.0.0-20191011234655-491137f69257 // indirect
 	golang.org/x/time v0.0.0-20190921001708-c4c64cad1fd0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
