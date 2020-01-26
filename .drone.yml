@@ -1,0 +1,27 @@
+---
+kind: pipeline
+type: docker
+name: test
+
+steps:
+- name: lint
+  image: golang:1.13
+  commands:
+    - go vet ./...
+  volumes:
+    - name: cache
+      path: /go
+
+- name: unit-test
+  image: golang:1.12
+  commands:
+    - go build
+    - go test
+  volumes:
+    - name: cache
+      path: /go
+
+volumes:
+- name: cache
+  host:
+    path: /var/lib/cache
