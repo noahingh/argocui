@@ -14,6 +14,10 @@ The simple video clip for Argo CUI.
 
 ![ArgoCUI](./img/argocui-0.0.1.gif)
 
+## Installation
+
+TBD
+
 ## Command
 
 ```
