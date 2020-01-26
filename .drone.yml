@@ -12,5 +12,4 @@ steps:
 - name: unit-test
   image: golang:1.12
   commands:
-    - go build
-    - go test
+    - go test -coverprofile=coverage.out ./... 
