@@ -39,6 +39,8 @@ steps:
       - go build \
       - -o artifacts/acui_darwin_amd64 \
       - -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build={DRONE_BUILD_NUMBER}"
+    depends_on:
+      - download
 
   - name: build-linux
     image: golang:1.13
@@ -50,6 +52,8 @@ steps:
       - go build \
       - -o artifacts/acui_linux_amd64 \
       - -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build={DRONE_BUILD_NUMBER}"
+    depends_on:
+      - download
 
   - name: build-windows
     image: golang:1.13
@@ -61,6 +65,8 @@ steps:
       - go build \
       - -o artifacts/acui_windows_amd64.exe \
       - -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build={DRONE_BUILD_NUMBER}"
+    depends_on:
+      - download
   
   - name: release
     image: plugins/github-release
@@ -82,4 +88,3 @@ steps:
 trigger:
   ref:
     - refs/tags/*.*.*
-  
