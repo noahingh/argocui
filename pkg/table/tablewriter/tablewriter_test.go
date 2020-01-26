@@ -78,6 +78,23 @@ func TestTableWriter_Render(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "padding",
+			fields: fields{
+				writer: &twriter{},
+				columnWidths: []int{5, 10, 5},
+				data: [][]string{
+					[]string{"aaaaa", "bbbbb", "ccc"},
+					[]string{"aaaaa", "", "ccc"},
+				},
+			},
+			want: []string{
+				fmt.Sprintln("aaaaa" + "bbbbb     " + "ccc  "),
+				fmt.Sprintln("aaaaa" + "          " + "ccc  "),
+			},
+			wantErr: false,
+
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
