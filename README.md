@@ -31,6 +31,8 @@ Usage of acui
     	Read only mode. Some features such as terminate and delete doesn't work.
 ```
 
+**Note that when you run the command it create the log file at** `$HOME/.argocui/log`.
+
 ## Keybinding
 
 ### List
