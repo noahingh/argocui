@@ -27,7 +27,6 @@ steps:
     image: golang:1.13
     commands:
       - go mod download
-      - mkdir artifacts
 
   - name: build-darwin
     image: golang:1.13
@@ -36,9 +35,11 @@ steps:
       GOOS: darwin
       GOARCH: amd64
     commands:
-      - go build \
-      - -o artifacts/acui_darwin_amd64 \
-      - -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build={DRONE_BUILD_NUMBER}"
+      - >
+        go build \
+        -o dist/acui_darwin_amd64 \
+        -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" \
+        ./cmd
     depends_on:
       - download
 
@@ -49,9 +50,11 @@ steps:
       GOOS: linux
       GOARCH: amd64
     commands:
-      - go build \
-      - -o artifacts/acui_linux_amd64 \
-      - -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build={DRONE_BUILD_NUMBER}"
+      - >
+        go build \
+        -o dist/acui_linux_amd64 \
+        -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" \
+        ./cmd
     depends_on:
       - download
 
@@ -62,11 +65,14 @@ steps:
       GOOS: windows
       GOARCH: amd64
     commands:
-      - go build \
-      - -o artifacts/acui_windows_amd64.exe \
-      - -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build={DRONE_BUILD_NUMBER}"
+      - >
+        go build \
+        -o dist/acui_windows_amd64.exe \
+        -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" \
+        ./cmd
     depends_on:
       - download
+  
   
   - name: release
     image: plugins/github-release
@@ -74,10 +80,10 @@ steps:
       title: ${DRONE_TAG}
       api_key: 
         from_secret: github_token
-      files: artifacts/*
+      files: dist/*
+      checksum:
+        - sha256
       draft: true
-    checksum:
-      - sha256
     depends_on:
       - build-darwin
       - build-linux
