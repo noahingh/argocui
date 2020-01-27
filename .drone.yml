@@ -27,6 +27,7 @@ steps:
     image: golang:1.13
     commands:
       - go mod download
+      - mkdir dist
 
   - name: build-darwin
     image: golang:1.13
@@ -37,10 +38,10 @@ steps:
     commands:
       - >
         go build 
-        -o dist/acui_darwin_amd64 
+        -o argocui
         -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" 
         ./cmd
-      # TODO: tar 
+      - tar -czf dist/argocui_darwin_amd64.tar.gz argocui LICENSE README.md
     depends_on:
       - download
 
@@ -53,10 +54,10 @@ steps:
     commands:
       - >
         go build 
-        -o dist/acui_linux_amd64 
+        -o argocui
         -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" 
         ./cmd
-      # TODO: tar
+      - tar -czf dist/argocui_linux_amd64.tar.gz argocui LICENSE README.md
     depends_on:
       - download
 
@@ -69,10 +70,10 @@ steps:
     commands:
       - >
         go build 
-        -o dist/acui_windows_amd64.exe 
+        -o argocui.exe 
         -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" 
         ./cmd
-      # TODO: tar
+      - tar -czf dist/argocui_windows_amd64.tar.gz argocui.exe LICENSE README.md
     depends_on:
       - download
 
