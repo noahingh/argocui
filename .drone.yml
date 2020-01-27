@@ -38,10 +38,10 @@ steps:
     commands:
       - >
         go build 
-        -o argocui
+        -o darwin/argocui
         -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" 
         ./cmd
-      - tar -czf dist/argocui_darwin_amd64.tar.gz argocui LICENSE README.md
+      - tar -czf dist/argocui_darwin_amd64.tar.gz darwin/argocui LICENSE README.md
     depends_on:
       - download
 
@@ -54,10 +54,10 @@ steps:
     commands:
       - >
         go build 
-        -o argocui
+        -o linux/argocui
         -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" 
         ./cmd
-      - tar -czf dist/argocui_linux_amd64.tar.gz argocui LICENSE README.md
+      - tar -czf dist/argocui_linux_amd64.tar.gz linux/argocui LICENSE README.md
     depends_on:
       - download
 
@@ -70,10 +70,10 @@ steps:
     commands:
       - >
         go build 
-        -o argocui.exe 
+        -o windows/argocui.exe 
         -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" 
         ./cmd
-      - tar -czf dist/argocui_windows_amd64.tar.gz argocui.exe LICENSE README.md
+      - tar -czf dist/argocui_windows_amd64.tar.gz windows/argocui.exe LICENSE README.md
     depends_on:
       - download
 
