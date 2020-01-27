@@ -38,10 +38,11 @@ steps:
     commands:
       - >
         go build 
-        -o darwin/argocui
+        -o argocui
         -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" 
         ./cmd
-      - tar -czf dist/argocui_darwin_amd64.tar.gz darwin/argocui LICENSE README.md
+      - tar -czf dist/argocui_darwin_amd64.tar.gz argocui LICENSE README.md
+      - rm argocui
     depends_on:
       - download
 
@@ -54,12 +55,13 @@ steps:
     commands:
       - >
         go build 
-        -o linux/argocui
+        -o argocui
         -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" 
         ./cmd
-      - tar -czf dist/argocui_linux_amd64.tar.gz linux/argocui LICENSE README.md
+      - tar -czf dist/argocui_linux_amd64.tar.gz argocui LICENSE README.md
+      - rm argocui
     depends_on:
-      - download
+      - build-darwin
 
   - name: build-windows
     image: golang:1.13
@@ -70,10 +72,11 @@ steps:
     commands:
       - >
         go build 
-        -o windows/argocui.exe 
+        -o argocui.exe 
         -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" 
         ./cmd
-      - tar -czf dist/argocui_windows_amd64.tar.gz windows/argocui.exe LICENSE README.md
+      - tar -czf dist/argocui_windows_amd64.tar.gz argocui.exe LICENSE README.md
+      - rm argocui.exe
     depends_on:
       - download
 
@@ -88,7 +91,6 @@ steps:
         - sha256
       draft: true
     depends_on:
-      - build-darwin
       - build-linux
       - build-windows
   
