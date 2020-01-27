@@ -4,12 +4,98 @@ type: docker
 name: test
 
 steps:
-- name: lint
-  image: golang:1.13
-  commands:
-    - go vet ./...
+  - name: lint
+    image: golang:1.13
+    commands:
+      - go vet ./...
 
-- name: unit-test
-  image: golang:1.12
-  commands:
-    - go test -coverprofile=coverage.out ./... 
+  - name: unit-test
+    image: golang:1.13
+    commands:
+      - go test -coverprofile=coverage.out ./...
+
+trigger:
+  event:
+    - pull_request
+---
+kind: pipeline
+type: docker
+name: release
+
+steps:
+  - name: download
+    image: golang:1.13
+    commands:
+      - go mod download
+      - mkdir dist
+
+  - name: build-darwin
+    image: golang:1.13
+    environment:
+      CGO_ENABLED: 0
+      GOOS: darwin
+      GOARCH: amd64
+    commands:
+      - >
+        go build 
+        -o argocui
+        -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" 
+        ./cmd
+      - tar -czf dist/argocui_darwin_amd64.tar.gz argocui LICENSE README.md
+      - rm argocui
+    depends_on:
+      - download
+
+  - name: build-linux
+    image: golang:1.13
+    environment:
+      CGO_ENABLED: 0
+      GOOS: linux
+      GOARCH: amd64
+    commands:
+      - >
+        go build 
+        -o argocui
+        -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" 
+        ./cmd
+      - tar -czf dist/argocui_linux_amd64.tar.gz argocui LICENSE README.md
+      - rm argocui
+    depends_on:
+      - build-darwin
+
+  - name: build-windows
+    image: golang:1.13
+    environment:
+      CGO_ENABLED: 0
+      GOOS: windows
+      GOARCH: amd64
+    commands:
+      - >
+        go build 
+        -o argocui.exe 
+        -ldflags "-s -w -X github.com/hanjunlee/argocui/cmd.version=${DRONE_TAG} -X github.com/hanjunlee/argocui/cmd.commit=${DRONE_COMMIT} -X github.com/hanjunlee/argocui/cmd.build=${DRONE_BUILD_NUMBER}" 
+        ./cmd
+      - tar -czf dist/argocui_windows_amd64.tar.gz argocui.exe LICENSE README.md
+      - rm argocui.exe
+    depends_on:
+      - download
+
+  - name: release
+    image: plugins/github-release
+    settings:
+      title: ${DRONE_TAG}
+      api_key: 
+        from_secret: github_token
+      files: dist/*
+      checksum:
+        - sha256
+      draft: true
+    depends_on:
+      - build-linux
+      - build-windows
+  
+  # TODO: homebrew
+
+trigger:
+  ref:
+    - refs/tags/*.*.*

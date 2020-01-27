@@ -17,7 +17,21 @@ The simple video clip for Argo CUI.
 
 ## Installation
 
+### Release
+
+You can download the binary file in [the release page](https://github.com/hanjunlee/argocui/releases).
+
+### Brew
+
 TBD
+
+### Source code
+
+```shell
+$ git clone git@github.com:hanjunlee/argocui.git
+$ cd argocui
+$ go build -o argo ./cmd
+```
 
 ## Command
 
@@ -30,6 +44,8 @@ Usage of acui
   -ro
     	Read only mode. Some features such as terminate and delete doesn't work.
 ```
+
+**Note that when you run the command it create the log file at** `$HOME/.argocui/log`.
 
 ## Keybinding
 
