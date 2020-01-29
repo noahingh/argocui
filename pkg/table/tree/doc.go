@@ -1,6 +1,8 @@
 /*
 
-Package tree present a Argo workflow as tree-like format, such as the "argo get" command. It return rows which consist of some columns.
+Package tree present a Argo workflow as tree-like format, such as the "argo get" command. 
+The type of return value is the double dimension of slice.
+
 For example if you want the tree of root node:
 
 	rows, err := GetTreeRoot(w)
