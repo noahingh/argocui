@@ -134,7 +134,6 @@ func (t *treeManager) renderRoot(v *gocui.View, datas [][]string) error {
 	w.SetColumns([]string{"STEP", "PODNAME", "DURATION", "MESSAGE"})
 	w.SetColumnWidths([]int{40, 40, 15, width - 95})
 	w.AppendBulk(datas)
-	t.log.Debugln(datas)
 	return w.Render()
 }
 

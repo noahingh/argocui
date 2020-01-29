@@ -212,6 +212,16 @@ func Test_cntOfColor(t *testing.T) {
 			},
 			want: 3,
 		},
+		{
+			name: "special char",
+			args: args{
+				word: strings.Join([]string{
+					color.ChangeColor("◷", gocui.ColorRed),
+					color.ChangeColor("○", gocui.ColorRed),
+				}, " "),
+			},
+			want: 2,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
