@@ -135,8 +135,9 @@ func getLine(row []string, widths []int) string {
 
 	for i, word := range row {
 		width := widths[i]
+		word = cutWord(word, width)
 
-		// add more padding for color.
+		// add more padding for the color because the string of color doesn't displayed on a view.
 		if cnt := cntOfColor(word); cnt > 0 {
 			width += widthColor * cnt
 		}
