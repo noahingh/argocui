@@ -1,11 +1,10 @@
 package tablewriter
 
 import (
-	"testing"
 	"strings"
+	"testing"
 
 	"github.com/hanjunlee/argocui/pkg/util/color"
-
 	"github.com/jroimartin/gocui"
 )
 
@@ -48,7 +47,7 @@ func Test_cntOfColor(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := cntOfColor(tt.args.word); got != tt.want {
-				t.Logf("word = %v",  tt.args.word)
+				t.Logf("word = %v", tt.args.word)
 				t.Errorf("getCntOfColor() = %v, want %v", got, tt.want)
 			}
 		})
