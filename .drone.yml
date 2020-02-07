@@ -79,6 +79,17 @@ steps:
     depends_on:
       - download
 
+  - name: aggregater
+    image: golang:1.13
+    commands:
+      - mkdir dist
+      - cp darwin_amd64/argocui_darwin_amd64.tar.gz linux_amd64/argocui_linux_amd64.tar.gz windows_amd64/argocui_windows_amd64.tar.gz dist/
+      - ls dist/
+    depends_on:
+      - build-darwin
+      - build-linux
+      - build-windows
+
   - name: release
     image: plugins/github-release
     settings:
@@ -89,14 +100,8 @@ steps:
       checksum:
         - sha256
       draft: true
-    commands:
-      - mkdir dist
-      - cp darwin_amd64/argocui_darwin_amd64.tar.gz linux_amd64/argocui_linux_amd64.tar.gz windows_amd64/argocui_windows_amd64.tar.gz dist/
-      - /bin/drone-github-release
     depends_on:
-      - build-darwin
-      - build-linux
-      - build-windows
+      - aggregater
   
   # TODO: homebrew
 
