@@ -167,6 +167,14 @@ func Test_cutWord(t *testing.T) {
 			},
 			want: color.ChangeColor("foob...", gocui.ColorYellow),
 		},
+		{
+			name: "two color",
+			args: args{
+				s:     color.ChangeColor("foobarbaz", gocui.ColorYellow) + color.ChangeColor("foobarbaz", gocui.ColorRed),
+				limit: 7,
+			},
+			want: color.ChangeColor("foob...", gocui.ColorYellow),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

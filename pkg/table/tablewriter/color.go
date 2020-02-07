@@ -5,6 +5,11 @@ import (
 	"strings"
 )
 
+const (
+	// colorRegexp = "\033\\[3[0-9]+;1m([0-9]|[a-z]|[A-Z]|◷|●|✔|○|✖|⚠)*\033\\[0m"
+	colorRegexp = "\033\\[3[0-9]+;1m.+\033\\[0m"
+)
+
 type coloredWord struct {
 	prefix  string
 	word    string
@@ -14,7 +19,7 @@ type coloredWord struct {
 func splitByColoredWord(s string) []string {
 	ret := make([]string, 0)
 
-	re := regexp.MustCompile("\033\\[3[0-9]+;1m([0-9]|[a-z]|[A-Z]|◷|●|✔|○|✖|⚠)*\033\\[0m")
+	re := regexp.MustCompile(colorRegexp)
 	indice := re.FindAllStringIndex(s, -1)
 	if len(indice) == 0 {
 		ret = append(ret, s)
@@ -116,6 +121,6 @@ func dotdotdot(s string) string {
 
 // cntOfColor return how many words has color.
 func cntOfColor(word string) int {
-	re := regexp.MustCompile("\033\\[3[0-9]+;1m([0-9]|[a-z]|[A-Z]|◷|●|✔|○|✖|⚠)*\033\\[0m")
+	re := regexp.MustCompile(colorRegexp)
 	return len(re.FindAllString(word, -1))
 }
