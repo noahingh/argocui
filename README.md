@@ -23,7 +23,9 @@ You can download the binary file in [the release page](https://github.com/hanjun
 
 ### Brew
 
-TBD
+```shell
+brew install argocui
+```
 
 ### Source code
 

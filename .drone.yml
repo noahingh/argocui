@@ -107,4 +107,4 @@ steps:
 
 trigger:
   ref:
-    - refs/tags/*.*.*
+    - refs/tags/v*.*.*
