@@ -29,12 +29,15 @@ func NewManager() *Manager {
 func (m *Manager) Layout(g *gocui.Gui) error {
 	x, y := g.Size()
 	grid := x / 12
-	padding := grid
-	if err := m.layoutInfo(g, padding, 0, 5*grid-1, y/4-1); err != nil {
+	if err := m.layoutInfo(g, 0, 1, 2*grid-1, y/4-1); err != nil {
 		return err
 	}
 
-	if err := m.layoutBrand(g, 6*grid, 0, x-1, y/4-1); err != nil {
+	if err := m.layoutHelp(g, 3*grid, 1, 6*grid-1, y/4-1); err != nil {
+		return err
+	}
+
+	if err := m.layoutBrand(g, 6*grid, 1, 11*grid-1, y/4-1); err != nil {
 		return err
 	}
 
@@ -90,6 +93,30 @@ func (m *Manager) layoutInfo(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	return nil
 }
 
+func (m *Manager) layoutHelp(g *gocui.Gui, x0, x1, y0, y1 int) error {
+	v, err := g.SetView("help", x0, x1, y0, y1)
+	if err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
+		v.Frame = false
+		help := `
+<H>: move to the top
+<L>: move to the bottom
+<k>: move up
+<j>: move down
+<ctrl+l>: follow log
+<ctrl+g>: tree
+</>: search 
+<ctrl+del>: delete
+`
+		fmt.Fprintf(v, help)
+	}
+
+	return nil
+}
+
 func (m *Manager) layoutBrand(g *gocui.Gui, x0, x1, y0, y1 int) error {
 	v, err := g.SetView("brand", x0, x1, y0, y1)
 	if err != nil {
@@ -99,12 +126,12 @@ func (m *Manager) layoutBrand(g *gocui.Gui, x0, x1, y0, y1 int) error {
 
 		v.Frame = false
 		brand := `
-     _____                            _________       .__ 
-    /  _  \_______  ____   ____       \_   ___ \ __ __|__|
-   /  /_\  \_  __ \/ ___\ /  _ \ --   /    \  \/|  |  \  |
-  /    |    \  | \/ /_/  >  <_> ) --- \     \___|  |  /  |
-  \____|__  /__|  \___  / \____/ --    \______  /____/|__|
-       	  \/     /_____/                      \/          
+    _____                                 _________  ____ ___.___ 
+   /  _  \_______  ____   ____            \_   ___ \|    |   \   |
+  /  /_\  \_  __ \/ ___\ /  _ \   ____    /    \  \/|    |   /   | 
+ /    |    \  | \/ /_/  >  <_> ) _______  \     \___|    |  /|   |
+ \____|__  /__|  \___  / \____/   ___      \______  /______/ |___|
+         \/     /_____/                           \/              
 `
 		fmt.Fprintf(v, color.ChangeColor(brand, gocui.ColorYellow))
 	}
@@ -114,7 +141,7 @@ func (m *Manager) layoutBrand(g *gocui.Gui, x0, x1, y0, y1 int) error {
 
 func (m *Manager) keybinding(g *gocui.Gui) error {
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
-			return gocui.ErrQuit
+		return gocui.ErrQuit
 	}); err != nil {
 		return err
 	}
