@@ -78,6 +78,7 @@ func splitToColoredWords(s string) []coloredWord {
 	return ret
 }
 
+// omit chars to exceed the limit of size.
 func cutWord(s string, limit int) string {
 	ws := splitToColoredWords(s)
 
@@ -86,6 +87,7 @@ func cutWord(s string, limit int) string {
 		size = size + len(w.word)
 	}
 
+	// the size to be removed.
 	removed := size - limit
 	for i := len(ws) - 1; i >= 0; i-- {
 		if removed <= 0 {
