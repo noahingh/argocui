@@ -27,7 +27,6 @@ func Test_splitByColoredWord(t *testing.T) {
 		args args
 		want []string
 	}{
-		// TODO: Add test cases.
 		{
 			name: "no colored words",
 			args: args{
@@ -66,7 +65,6 @@ func Test_splitToColoredWords(t *testing.T) {
 		args args
 		want []coloredWord
 	}{
-		// TODO: Add test cases.
 		{
 			name: "no colored words",
 			args: args{
@@ -126,7 +124,6 @@ func Test_cutWord(t *testing.T) {
 		args args
 		want string
 	}{
-		// TODO: Add test cases.
 		{
 			name: "no color",
 			args: args{
@@ -194,7 +191,6 @@ func Test_cntOfColor(t *testing.T) {
 		args args
 		want int
 	}{
-		// TODO: Add test cases.
 		{
 			name: "no color",
 			args: args{
