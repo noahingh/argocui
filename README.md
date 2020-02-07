@@ -32,7 +32,7 @@ brew install argocui
 ```shell
 $ git clone git@github.com:hanjunlee/argocui.git
 $ cd argocui
-$ go build -o argo ./cmd
+$ go build -o argocui ./cmd
 ```
 
 ## Command
