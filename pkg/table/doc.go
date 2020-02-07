@@ -1,6 +1,6 @@
 /*
 
-Package table is presentation layer of Clean architecture. This package is for to present as table-like format.
+Package table is presentation layer, and it support to present as table-like format.
 
 */
 package table

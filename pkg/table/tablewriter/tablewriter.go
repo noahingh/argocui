@@ -5,8 +5,6 @@ import (
 	"io"
 	"strings"
 
-	"github.com/hanjunlee/argocui/pkg/util/color"
-
 	// "github.com/willf/pad"
 	padUtf8 "github.com/willf/pad/utf8"
 )
@@ -137,22 +135,15 @@ func getLine(row []string, widths []int) string {
 
 	for i, word := range row {
 		width := widths[i]
-		// complement the width for a color.
-		if color.HasColor(word) {
-			width = width + widthColor
-		}
+		word = cutWord(word, width)
 
-		word = dotdotdot(word, width)
+		// add more padding for the color because the string of color doesn't displayed on a view.
+		if cnt := cntOfColor(word); cnt > 0 {
+			width += widthColor * cnt
+		}
 		ret = ret + padUtf8.Right(word, width, " ")
 	}
 	return ret
-}
-
-func dotdotdot(word string, size int) string {
-	if len(word) > size {
-		word = word[:size-3] + "..."
-	}
-	return word
 }
 
 func sum(ints ...int) int {
