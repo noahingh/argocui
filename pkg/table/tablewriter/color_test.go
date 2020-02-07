@@ -46,6 +46,16 @@ func Test_splitByColoredWord(t *testing.T) {
 				"bar",
 			},
 		},
+		{
+			name: "two colors",
+			args: args{
+				s: color.ChangeColor("foo", gocui.ColorYellow) + color.ChangeColor("bar", gocui.ColorRed),
+			},
+			want: []string{
+				color.ChangeColor("foo", gocui.ColorYellow), 
+				color.ChangeColor("bar", gocui.ColorRed),
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	// colorRegexp = "\033\\[3[0-9]+;1m([0-9]|[a-z]|[A-Z]|◷|●|✔|○|✖|⚠)*\033\\[0m"
-	colorRegexp = "\033\\[3[0-9]+;1m.+\033\\[0m"
+	// the regexp ".+?" means one or more char, prefer fewer.
+	colorRegexp = "\033\\[3[0-9]+;1m.+?\033\\[0m"
 )
 
 type coloredWord struct {
