@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Toggle namespace the current namespace and the global namespace(`*`).
+- Toggle namespace the current namespace and the global namespace(`*`)([#7](https://github.com/hanjunlee/argocui/pull/7)).
 
 ## [0.0.1]
 ### Added
