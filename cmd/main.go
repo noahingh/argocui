@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -13,6 +14,7 @@ import (
 	"github.com/hanjunlee/argocui/pkg/argo/repo"
 	"github.com/hanjunlee/argocui/pkg/kube"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
+	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
 
 	informers "github.com/argoproj/argo/pkg/client/informers/externalversions"
 	"github.com/asaskevich/EventBus"
@@ -22,6 +24,7 @@ import (
 )
 
 var (
+	version  = flag.Bool("version", false, "Check the version.")
 	debug    = flag.Bool("debug", false, "Debug mode.")
 	trace    = flag.Bool("trace", false, "Debug as trace level.")
 	readOnly = flag.Bool("ro", false, "Read only mode.")
@@ -30,6 +33,10 @@ var (
 func main() {
 	// flag command
 	flag.Parse()
+	if *version {
+		currentVersion()
+		return 
+	}
 	setConfig()
 	setLog()
 
@@ -74,6 +81,13 @@ func main() {
 		log.Panic(err)
 	}
 }
+
+func currentVersion() {
+	fmt.Println(colorutil.ChangeColor(config.Logo, gocui.ColorYellow))
+	fmt.Printf("Version: %s\n", config.Version)
+	fmt.Printf("Argo Version: %s\n", config.ArgoVersion)
+}
+
 func setConfig() {
 	if *readOnly {
 		config.ReadOnly = true
