@@ -56,6 +56,7 @@ Usage of acui
  Key | Description
 -----|-------------
  `/` | Set the search current view.
+ `A` | Swtich the namespace between the global `*` and the current namespace.
  `k` | Move cursor up.
  `j` | Move cursor down.
  `H` | Move cursor up to the upper bound.
