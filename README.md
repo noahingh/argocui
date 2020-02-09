@@ -56,11 +56,12 @@ Usage of acui
  Key | Description
 -----|-------------
  `/` | Set the search current view.
- `A` | Swtich the namespace between the global `*` and the current namespace.
+ `A` | Set as the global namespace, click again if you want to back.
  `k` | Move cursor up.
  `j` | Move cursor down.
  `H` | Move cursor up to the upper bound.
  `L` | Move cursor down to the bottom.
+ `ctrl + n` | Switch to another namespace.
  `ctrl + l` | Display logs from Argo workflow.
  `ctrl + g` | Display the tree of Argo workflow.
 
