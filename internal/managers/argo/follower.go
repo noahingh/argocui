@@ -43,7 +43,7 @@ func newFollowerManager(uc argo.UseCase, bus EventBus.Bus) *followerManager {
 		uc:  uc,
 		bus: bus,
 		logger: log.WithFields(log.Fields{
-			"pkg":  "argo manager",
+			"pkg":  "argo-manager",
 			"file": "follower.go",
 		}),
 	}

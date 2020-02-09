@@ -52,7 +52,7 @@ func newCollectionManager(uc argo.UseCase, bus EventBus.Bus) *collectionManager 
 		uc:          uc,
 		bus:         bus,
 		log: log.WithFields(log.Fields{
-			"pkg":  "argo manager",
+			"pkg":  "argo-manager",
 			"file": "collection.go",
 		}),
 	}
