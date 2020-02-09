@@ -38,13 +38,15 @@ $ go build -o argocui ./cmd
 ## Command
 
 ```
-Usage of acui  
+Usage of argocui  
   -debug
     	Debug mode.
+  -ro
+    	Read only mode.
   -trace
     	Debug as trace level.
-  -ro
-    	Read only mode. Some features such as terminate and delete doesn't work.
+  -version
+    	Check the version.
 ```
 
 **Note that when you run the command it create the log file at** `$HOME/.argocui/log`.
