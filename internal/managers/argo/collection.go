@@ -26,9 +26,10 @@ const (
 )
 
 type collectionManager struct {
-	namespace   string
-	namePattern string
-	cache       []*wf.Workflow
+	namespace      string
+	namespaceCache string
+	namePattern    string
+	cache          []*wf.Workflow
 
 	uc  argo.UseCase
 	bus EventBus.Bus
@@ -58,25 +59,21 @@ func newCollectionManager(uc argo.UseCase, bus EventBus.Bus) *collectionManager 
 	}
 }
 
+func (cm *collectionManager) setNamespace(ns string) {
+	cm.namespaceCache = cm.namespace
+	cm.namespace = ns
+}
+
 func (cm *collectionManager) pattern() string {
 	return fmt.Sprintf("%s/*%s*", cm.namespace, cm.namePattern)
 }
 
-func (cm *collectionManager) switchNamespace() error {
-	var (
-		namespace string
-		err       error
-	)
-	if namespace, err = argoutil.GetNamespace(); err != nil {
-		return err
-	}
-
+func (cm *collectionManager) toggleGlobalNamespace() {
 	if cm.namespace == globalNamespace {
-		cm.namespace = namespace
+		cm.setNamespace(cm.namespaceCache)
 	} else {
-		cm.namespace = globalNamespace
+		cm.setNamespace(globalNamespace)
 	}
-	return nil
 }
 
 // lay out the collection view.
@@ -173,11 +170,9 @@ func (cm *collectionManager) keybinding(g *gocui.Gui) error {
 
 	if err := g.SetKeybinding(collectionViewName, 'A', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
-			if err := cm.switchNamespace(); err != nil {
-				cm.log.Errorf("fail to switch namespace: %s", err)
-				return nil
-			}
+			cm.toggleGlobalNamespace()
 			cm.log.Infof("switch the namespace: %s", cm.namespace)
+
 			v.SetOrigin(0, 0)
 			v.SetCursor(0, collectionUpperBound)
 			return nil
@@ -215,7 +210,7 @@ func (cm *collectionManager) keybinding(g *gocui.Gui) error {
 
 	if err := g.SetKeybinding(collectionViewName, gocui.KeyCtrlN, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
-			cm.log.Infof("set the current view namespace.")
+			cm.log.Infof("move the current view to namespace.")
 			cm.bus.Publish(eventNamespaceSetView)
 			return nil
 		}); err != nil {
@@ -323,8 +318,13 @@ func (cm *collectionManager) subscribe(g *gocui.Gui) error {
 	}
 
 	if err := cm.bus.Subscribe(eventCollectionSetNamespace, func(ns string) {
+		if ns == "" {
+			cm.log.Error("fail to set the namespace.")
+			return
+		}
+
 		cm.log.Infof("set the namespace: %s.", ns)
-		cm.namespace = ns
+		cm.setNamespace(ns)
 
 		cm.log.Info("init cursor of the view.")
 		v, _ := g.View(collectionViewName)
