@@ -63,7 +63,7 @@ func (m *Manager) layoutInfo(g *gocui.Gui, x0, y0, x1, y1 int) error {
 			const (
 				argoRev    = config.ArgoVersion
 				argocuiRev = config.Version
-				homePage   = "github.com/hanjunlee/argocui"
+				homePage   = config.HomePage
 			)
 			var (
 				context string

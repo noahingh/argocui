@@ -17,6 +17,8 @@ const (
 	Version = "v0.0.2"
 	// ArgoVersion is the version of the Argo package.
 	ArgoVersion = "v2.4.1"
+	// HomePage is the url of Argocui repository.
+	HomePage = "github.com/hanjunlee/argocui"
 )
 
 var (
