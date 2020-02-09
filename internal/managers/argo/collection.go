@@ -213,6 +213,15 @@ func (cm *collectionManager) keybinding(g *gocui.Gui) error {
 		return err
 	}
 
+	if err := g.SetKeybinding(collectionViewName, gocui.KeyCtrlN, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			cm.log.Infof("set the current view namespace.")
+			cm.bus.Publish(eventNamespaceSetView)
+			return nil
+		}); err != nil {
+		return err
+	}
+
 	if err := g.SetKeybinding(collectionViewName, gocui.KeyCtrlL, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			_, py, _ := viewutil.GetCursorPosition(g, v)
@@ -300,14 +309,28 @@ func (cm *collectionManager) getKeyAtCursor(cursor int) (string, error) {
 // subscribes events of the collection.
 const (
 	eventCollectionSetView        = "collection:set-view"
+	eventCollectionSetNamespace   = "collection:set-namespace"
 	eventCollectionSetNamePattern = "collection:set-name-pattern"
 )
 
 func (cm *collectionManager) subscribe(g *gocui.Gui) error {
 	if err := cm.bus.Subscribe(eventCollectionSetView, func() {
-		cm.log.Info("set the current view list.")
+		cm.log.Info("set the current view collection.")
 		g.SetViewOnTop(collectionViewName)
 		g.SetCurrentView(collectionViewName)
+	}); err != nil {
+		return err
+	}
+
+	if err := cm.bus.Subscribe(eventCollectionSetNamespace, func(ns string) {
+		cm.log.Infof("set the namespace: %s.", ns)
+		cm.namespace = ns
+
+		cm.log.Info("init cursor of the view.")
+		v, _ := g.View(collectionViewName)
+
+		v.SetOrigin(0, 0)
+		v.SetCursor(0, collectionUpperBound)
 	}); err != nil {
 		return err
 	}

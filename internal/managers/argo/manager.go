@@ -1,26 +1,29 @@
 package argo
 
 import (
-	"github.com/jroimartin/gocui"
 	"github.com/asaskevich/EventBus"
 	"github.com/hanjunlee/argocui/pkg/argo"
+	"github.com/hanjunlee/argocui/pkg/kube"
+	"github.com/jroimartin/gocui"
 )
 
 // Manager is the manager of the Argo cui.
 type Manager struct {
-	s *subManager
+	s  *subManager
 	cm *collectionManager
-	f *followerManager
-	t *treeManager
+	f  *followerManager
+	t  *treeManager
+	nm *namespaceManager
 }
 
 // NewManager create a new manager of the Argo cui.
-func NewManager(uc argo.UseCase, bus EventBus.Bus) *Manager {
+func NewManager(au argo.UseCase, ku kube.UseCase, bus EventBus.Bus) *Manager {
 	return &Manager{
-		s: newSubManager(uc, bus),
-		cm: newCollectionManager(uc, bus),
-		f: newFollowerManager(uc, bus),
-		t: newTreeManager(uc, bus),
+		s:  newSubManager(au, bus),
+		cm: newCollectionManager(au, bus),
+		f:  newFollowerManager(au, bus),
+		t:  newTreeManager(au, bus),
+		nm: newNamespaceManager(ku, bus),
 	}
 }
 
@@ -39,7 +42,11 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 		return err
 	}
 
-	// follower should be on the top when it start.
+	if err := m.nm.layout(g, 0, y/4+3, x-1, y-1); err != nil {
+		return err
+	}
+
+	// collection view should be on the top when it start.
 	if err := m.cm.layout(g, 0, y/4+3, x-1, y-1); err != nil {
 		return err
 	}
