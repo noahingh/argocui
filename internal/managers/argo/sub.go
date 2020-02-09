@@ -21,7 +21,7 @@ func newSubManager(uc argo.UseCase, bus EventBus.Bus) *subManager {
 		uc:  uc,
 		bus: bus,
 		log: log.WithFields(log.Fields{
-			"pkg": "argo manager",
+			"pkg":  "argo-manager",
 			"file": "sub.go",
 		}),
 	}

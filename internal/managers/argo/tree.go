@@ -31,7 +31,7 @@ func newTreeManager(uc argo.UseCase, bus EventBus.Bus) *treeManager {
 		uc:  uc,
 		bus: bus,
 		log: log.WithFields(log.Fields{
-			"pkg":  "argo manager",
+			"pkg":  "argo-manager",
 			"file": "tree.go",
 		}),
 	}
