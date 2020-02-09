@@ -1,16 +1,17 @@
 package main
 
 import (
+	"flag"
 	"os"
 	"path/filepath"
 	"time"
-	"flag"
-	
+
+	"github.com/hanjunlee/argocui/internal/config"
 	am "github.com/hanjunlee/argocui/internal/managers/argo"
 	"github.com/hanjunlee/argocui/internal/managers/etc"
-	"github.com/hanjunlee/argocui/internal/config"
 	"github.com/hanjunlee/argocui/pkg/argo"
 	"github.com/hanjunlee/argocui/pkg/argo/repo"
+	"github.com/hanjunlee/argocui/pkg/kube"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 
 	informers "github.com/argoproj/argo/pkg/client/informers/externalversions"
@@ -21,8 +22,8 @@ import (
 )
 
 var (
-	debug = flag.Bool("debug", false, "Debug mode.")
-	trace = flag.Bool("trace", false, "Debug as trace level.")
+	debug    = flag.Bool("debug", false, "Debug mode.")
+	trace    = flag.Bool("trace", false, "Debug as trace level.")
 	readOnly = flag.Bool("ro", false, "Read only mode.")
 )
 
@@ -34,7 +35,8 @@ func main() {
 
 	// create a new repo and syncronize.
 	var (
-		service *argo.Service
+		argoService *argo.Service
+		kubeService *kube.Service
 	)
 	argoClientset := argoutil.GetClientset()
 	kubeClientset := argoutil.GetKubeClientset()
@@ -48,8 +50,9 @@ func main() {
 	factory.Start(neverStop)
 	repo.WaitForSync(neverStop)
 
-	// create a new service
-	service = argo.NewService(repo)
+	// create new services
+	argoService = argo.NewService(repo)
+	kubeService = kube.NewService(kubeClientset)
 
 	g, err := gocui.NewGui(gocui.OutputNormal)
 	if err != nil {
@@ -64,7 +67,7 @@ func main() {
 	em := etc.NewManager()
 
 	bus := EventBus.New()
-	m := am.NewManager(service, bus)
+	m := am.NewManager(argoService, kubeService, bus)
 	g.SetManager(em, m)
 
 	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
@@ -88,10 +91,10 @@ func setLog() {
 
 	path := filepath.Join(os.Getenv("HOME"), "/.argocui/log")
 	log.SetOutput(&lumberjack.Logger{
-		Filename: path,
+		Filename:   path,
 		MaxSize:    500,
 		MaxBackups: 1,
-		MaxAge:     7, 
-		Compress:   true, 
+		MaxAge:     7,
+		Compress:   true,
 	})
 }
