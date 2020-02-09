@@ -65,7 +65,6 @@ func (m *Manager) layoutInfo(g *gocui.Gui, x0, y0, x1, y1 int) error {
 			)
 			var (
 				context   string
-				namespace string
 				err       error
 			)
 
@@ -74,15 +73,9 @@ func (m *Manager) layoutInfo(g *gocui.Gui, x0, y0, x1, y1 int) error {
 				context = ""
 			}
 
-			if namespace, err = argoutil.GetNamespace(); err != nil {
-				m.log.Errorf("couldn't get the namespace: %s.", err)
-				namespace = ""
-			}
-
 			v.Clear()
 			fmt.Fprintln(v, "")
 			fmt.Fprintf(v, "Context:      %s\n", color.ChangeColor(context, gocui.ColorYellow))
-			fmt.Fprintf(v, "Namespace:    %s\n", color.ChangeColor(namespace, gocui.ColorYellow))
 			fmt.Fprintf(v, "Argo Rev:     %s\n", color.ChangeColor(argoRev, gocui.ColorYellow))
 			fmt.Fprintf(v, "Argocui Rev:  %s\n", color.ChangeColor(argocuiRev, gocui.ColorYellow))
 			fmt.Fprintf(v, "Homepage:     %s\n", color.ChangeColor(homePage, gocui.ColorYellow))
