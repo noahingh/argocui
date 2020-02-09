@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hanjunlee/argocui/internal/config"
 	"github.com/hanjunlee/argocui/pkg/argo"
 	tw "github.com/hanjunlee/argocui/pkg/table/tablewriter"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
-	"github.com/hanjunlee/argocui/internal/config"
 
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	h "github.com/argoproj/pkg/humanize"
@@ -21,6 +21,8 @@ import (
 const (
 	collectionViewName   = "collection"
 	collectionUpperBound = 2
+
+	globalNamespace = "*"
 )
 
 type collectionManager struct {
@@ -35,8 +37,16 @@ type collectionManager struct {
 }
 
 func newCollectionManager(uc argo.UseCase, bus EventBus.Bus) *collectionManager {
+	var (
+		namespace string
+		err       error
+	)
+	if namespace, err = argoutil.GetNamespace(); err != nil {
+		namespace = globalNamespace
+	}
+
 	return &collectionManager{
-		namespace:   "*",
+		namespace:   namespace,
 		namePattern: "",
 		cache:       []*wf.Workflow{},
 		uc:          uc,
@@ -50,6 +60,23 @@ func newCollectionManager(uc argo.UseCase, bus EventBus.Bus) *collectionManager 
 
 func (cm *collectionManager) pattern() string {
 	return fmt.Sprintf("%s/*%s*", cm.namespace, cm.namePattern)
+}
+
+func (cm *collectionManager) switchNamespace() error {
+	var (
+		namespace string
+		err       error
+	)
+	if namespace, err = argoutil.GetNamespace(); err != nil {
+		return err
+	}
+
+	if cm.namespace == globalNamespace {
+		cm.namespace = namespace
+	} else {
+		cm.namespace = globalNamespace
+	}
+	return nil
 }
 
 // lay out the collection view.
@@ -139,6 +166,20 @@ func (cm *collectionManager) keybinding(g *gocui.Gui) error {
 		func(g *gocui.Gui, v *gocui.View) error {
 			cm.log.Debugf("publish the event: search: %s", eventSubSetView)
 			cm.bus.Publish(eventSubSetView)
+			return nil
+		}); err != nil {
+		return err
+	}
+
+	if err := g.SetKeybinding(collectionViewName, 'A', gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			if err := cm.switchNamespace(); err != nil {
+				cm.log.Errorf("fail to switch namespace: %s", err)
+				return nil
+			}
+			cm.log.Infof("switch the namespace: %s", cm.namespace)
+			v.SetOrigin(0, 0)
+			v.SetCursor(0, collectionUpperBound)
 			return nil
 		}); err != nil {
 		return err
