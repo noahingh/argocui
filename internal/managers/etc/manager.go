@@ -7,6 +7,8 @@ import (
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	"github.com/hanjunlee/argocui/pkg/util/color"
 	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
+	"github.com/hanjunlee/argocui/internal/config"
+
 	"github.com/jroimartin/gocui"
 	log "github.com/sirupsen/logrus"
 )
@@ -59,13 +61,13 @@ func (m *Manager) layoutInfo(g *gocui.Gui, x0, y0, x1, y1 int) error {
 
 		go viewutil.RefreshViewPeriodic(g, v, 1*time.Second, func() error {
 			const (
-				argoRev    = "v2.4.1"
-				argocuiRev = "v0.0.1"
+				argoRev    = config.ArgoVersion
+				argocuiRev = config.Version
 				homePage   = "github.com/hanjunlee/argocui"
 			)
 			var (
-				context   string
-				err       error
+				context string
+				err     error
 			)
 
 			if context, err = argoutil.GetCurrentContext(); err != nil {
@@ -118,15 +120,7 @@ func (m *Manager) layoutBrand(g *gocui.Gui, x0, x1, y0, y1 int) error {
 		}
 
 		v.Frame = false
-		brand := `
-    _____                                 _________  ____ ___.___ 
-   /  _  \_______  ____   ____            \_   ___ \|    |   \   |
-  /  /_\  \_  __ \/ ___\ /  _ \   ____    /    \  \/|    |   /   | 
- /    |    \  | \/ /_/  >  <_> ) _______  \     \___|    |  /|   |
- \____|__  /__|  \___  / \____/   ___      \______  /______/ |___|
-         \/     /_____/                           \/              
-`
-		fmt.Fprintf(v, color.ChangeColor(brand, gocui.ColorYellow))
+		fmt.Fprintf(v, color.ChangeColor(config.Logo, gocui.ColorYellow))
 	}
 
 	return nil
