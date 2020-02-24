@@ -126,9 +126,9 @@ func (nm *namespaceManager) keybinding(g *gocui.Gui) error {
 
 	if err := g.SetKeybinding(namespaceViewName, gocui.KeyEnter, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
-			_, py, _ := viewutil.GetCursorPosition(g, v)
+			_, cy := v.Cursor() 
 
-			ns, err := v.Line(py)
+			ns, err := v.Line(cy)
 			if err != nil {
 				nm.log.Errorf("failed to get namespace.")
 				return nil
