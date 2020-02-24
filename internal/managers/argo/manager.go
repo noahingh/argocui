@@ -9,7 +9,7 @@ import (
 
 // Manager is the manager of the Argo cui.
 type Manager struct {
-	s  *subManager
+	s  *searchManager
 	cm *collectionManager
 	f  *followerManager
 	t  *treeManager
@@ -19,7 +19,7 @@ type Manager struct {
 // NewManager create a new manager of the Argo cui.
 func NewManager(au argo.UseCase, ku kube.UseCase, bus EventBus.Bus) *Manager {
 	return &Manager{
-		s:  newSubManager(au, bus),
+		s:  newSearchManager(au, bus),
 		cm: newCollectionManager(au, bus),
 		f:  newFollowerManager(au, bus),
 		t:  newTreeManager(au, bus),

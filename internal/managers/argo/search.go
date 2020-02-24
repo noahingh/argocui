@@ -9,15 +9,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type subManager struct {
+type searchManager struct {
 	uc  argo.UseCase
 	bus EventBus.Bus
 
 	log *log.Entry
 }
 
-func newSubManager(uc argo.UseCase, bus EventBus.Bus) *subManager {
-	return &subManager{
+func newSearchManager(uc argo.UseCase, bus EventBus.Bus) *searchManager {
+	return &searchManager{
 		uc:  uc,
 		bus: bus,
 		log: log.WithFields(log.Fields{
@@ -28,11 +28,11 @@ func newSubManager(uc argo.UseCase, bus EventBus.Bus) *subManager {
 }
 
 const (
-	subViewName = "sub"
+	searchViewName = "search"
 )
 
-func (s *subManager) layout(g *gocui.Gui, x0, y0, x1, y1 int) error {
-	v, err := g.SetView(subViewName, x0, y0, x1, y1)
+func (s *searchManager) layout(g *gocui.Gui, x0, y0, x1, y1 int) error {
+	v, err := g.SetView(searchViewName, x0, y0, x1, y1)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -41,7 +41,7 @@ func (s *subManager) layout(g *gocui.Gui, x0, y0, x1, y1 int) error {
 		v.Title = "Search"
 		v.FgColor = gocui.ColorYellow
 		v.Editable = true
-		v.Editor = gocui.EditorFunc(subEditor)
+		v.Editor = gocui.EditorFunc(searchEditor)
 
 		s.keybinding(g)
 		s.subscribe(g)
@@ -50,7 +50,7 @@ func (s *subManager) layout(g *gocui.Gui, x0, y0, x1, y1 int) error {
 	return nil
 }
 
-func subEditor(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) {
+func searchEditor(v *gocui.View, key gocui.Key, ch rune, mod gocui.Modifier) {
 	switch {
 	case ch != 0 && mod == 0:
 		v.EditWrite(ch)
@@ -77,8 +77,8 @@ func trimLine(l string) string {
 	return l
 }
 
-func (s *subManager) keybinding(g *gocui.Gui) error {
-	if err := g.SetKeybinding(subViewName, gocui.KeyEnter, gocui.ModNone,
+func (s *searchManager) keybinding(g *gocui.Gui) error {
+	if err := g.SetKeybinding(searchViewName, gocui.KeyEnter, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			pattern, _ := v.Line(0)
 			pattern = trimLine(pattern)
@@ -100,10 +100,10 @@ const (
 )
 
 // subscribe set events to be triggered in other views.
-func (s *subManager) subscribe(g *gocui.Gui) error {
+func (s *searchManager) subscribe(g *gocui.Gui) error {
 	if err := s.bus.Subscribe(eventSubSetView, func() {
 		s.log.Info("set the current view search.")
-		g.SetCurrentView(subViewName)
+		g.SetCurrentView(searchViewName)
 	}); err != nil {
 		return err
 	}
