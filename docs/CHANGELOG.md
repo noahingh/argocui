@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 
 
 ### Fixed
-- Fix the position of namespace.[#10]()
+- Fix the position of namespace.[#10](https://github.com/hanjunlee/argocui/pull/10)
 
 ## [0.0.3]
 ### Added
