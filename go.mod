@@ -14,12 +14,12 @@ require (
 	github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6 // indirect
 	github.com/googleapis/gnostic v0.3.1 // indirect
 	github.com/gorilla/websocket v1.4.1 // indirect
+	github.com/hanjunlee/gocui-architecture v0.0.0-20200304003940-a98642dbeb40
 	github.com/hanjunlee/tree v0.0.0-20200101032508-62b94dc232b4
 	github.com/hashicorp/go-uuid v1.0.1 // indirect
 	github.com/jcmturner/gofork v1.0.0 // indirect
 	github.com/jroimartin/gocui v0.4.0
 	github.com/json-iterator/go v1.1.7 // indirect
-	github.com/nsf/termbox-go v0.0.0-20190817171036-93860e161317 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/ryanuber/go-glob v1.0.0
 	github.com/sirupsen/logrus v1.4.2
