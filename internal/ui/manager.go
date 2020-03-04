@@ -18,26 +18,6 @@ func init() {
 	log.SetOutput(f)
 }
 
-// ManagerIface is the interface of manager.
-type ManagerIface interface {
-	Layout(g *gocui.Gui) error
-	Keybinding(g *gocui.Gui) error
-
-	// Dector
-	//
-	// NewDector switch to the Dector.
-	NewDector(g *gocui.Gui, init string) error
-	// ReturnDector return the result and switch to the core view.
-	ReturnDector(g *gocui.Gui) (string error)
-
-	// Switcher
-	//
-	// NewSwitcher switch services.
-	NewSwitcher(g *gocui.Gui) error
-	// ReturnSwitcher return the service.
-	ReturnSwitcher(g *gocui.Gui) (argo.UseCase, error)
-}
-
 const (
 	// Core is the core view.
 	Core string = "core"
@@ -49,9 +29,7 @@ const (
 
 // Manager is the manager of UI.
 type Manager struct {
-	// Access to contents
-	Svc        argo.UseCase
-	SvcEntries map[string]argo.UseCase
+	Argo        argo.UseCase
 
 	// Dected is the string dected by the Dector.
 	Dected string
