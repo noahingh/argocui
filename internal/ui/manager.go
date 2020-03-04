@@ -148,7 +148,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 		func(g *gocui.Gui, v *gocui.View) error {
 			svc, err := m.ReturnSwitcher(g)
 			if err != nil {
-				log.Warn("couldn't switch service: %s", err)
+				log.Warnf("couldn't switch service: %s", err)
 				return nil
 			}
 			m.Svc = svc
