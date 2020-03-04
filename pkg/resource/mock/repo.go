@@ -1,11 +1,8 @@
 package mock
 
 import (
-	"context"
 	"fmt"
 	"strings"
-
-	"github.com/hanjunlee/argocui/pkg/resource"
 )
 
 // Animal is the name of animal.
@@ -47,18 +44,14 @@ func (r *Repo) Delete(key string) error {
 			continue
 		}
 
-		if idx == len(zoo) - 1 {
+		if idx == len(zoo)-1 {
 			zoo = zoo[0:idx]
 		} else {
 			zoo = append(zoo[:idx], zoo[idx+1:len(zoo)]...)
 		}
 		return nil
 	}
-	
+
 	return fmt.Errorf("it doesn't exist: %s", key)
 }
 
-// Logs is not implemented.
-func (r *Repo) Logs(ctx context.Context, key string) (ch <-chan resource.Log, err error) {
-	return nil, resource.ErrNotImplement
-}

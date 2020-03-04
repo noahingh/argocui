@@ -1,13 +1,7 @@
 package resource
 
 import (
-	"context"
-	"fmt"
-)
-
-var (
-	// ErrNotImplement is the error when the method is not implemented.
-	ErrNotImplement = fmt.Errorf("it's not implemented")
+	"github.com/hanjunlee/argocui/pkg/resource/mock"
 )
 
 // Service is the layer of use case, it encapsulates and implements all of the use cases of the system.
@@ -20,6 +14,17 @@ func NewService(r Repo) *Service {
 	return &Service{
 		repo: r,
 	}
+}
+
+// GetRepoType return the type of repository.
+func (s *Service) GetRepoType() RepoType {
+	var t RepoType
+
+	switch s.repo.(type) {
+	case *mock.Repo:
+		t = Mock
+	}
+	return t
 }
 
 // Get get the workflow by the key, the format is "namespace/key", and if doesn't exist it return nil.
@@ -35,9 +40,4 @@ func (s *Service) Search(pattern string) []interface{} {
 // Delete delete the workflow by the key.
 func (s *Service) Delete(key string) error {
 	return s.repo.Delete(key)
-}
-
-// Logs get the channel to recieve Logs from a Argo workflow.
-func (s *Service) Logs(ctx context.Context, key string) (ch <-chan Log, err error) {
-	return s.repo.Logs(ctx, key)
 }
