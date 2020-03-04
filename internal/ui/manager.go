@@ -2,21 +2,16 @@ package ui
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
+	"github.com/hanjunlee/argocui/pkg/resource"
+	"github.com/hanjunlee/argocui/pkg/resource/mock"
 	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
-	// TODO: rename the package.
-	"github.com/hanjunlee/argocui/pkg/argo"
+	"github.com/willf/pad"
 
 	"github.com/jroimartin/gocui"
 	log "github.com/sirupsen/logrus"
 )
-
-func init() {
-	f, _ := os.OpenFile("gocui.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	log.SetOutput(f)
-}
 
 const (
 	// Core is the core view.
@@ -29,7 +24,8 @@ const (
 
 // Manager is the manager of UI.
 type Manager struct {
-	Argo        argo.UseCase
+	Svc        resource.UseCase
+	SvcEntries map[string]resource.UseCase
 
 	// Dected is the string dected by the Dector.
 	Dected string
@@ -55,6 +51,14 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 
 	v.Clear()
 	// TODO: print the content.
+	switch m.Svc.GetRepoType() {
+	case resource.Mock:
+		w, _ := v.Size()
+		for _, a := range m.Svc.Search(m.Dected) {
+			s := pad.Right(string(a.(mock.Animal)), w, " ")
+			fmt.Fprintln(v, s)
+		}
+	}
 
 	return nil
 }
@@ -227,7 +231,7 @@ func (m *Manager) NewSwitcher(g *gocui.Gui) error {
 }
 
 // ReturnSwitcher return the service from the switcher and back to the Core.
-func (m *Manager) ReturnSwitcher(g *gocui.Gui) (argo.UseCase, error) {
+func (m *Manager) ReturnSwitcher(g *gocui.Gui) (resource.UseCase, error) {
 	v, _ := g.View(Switcher)
 	s, _ := v.Line(0)
 	s = strings.TrimSpace(s)

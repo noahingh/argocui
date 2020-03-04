@@ -8,6 +8,8 @@ import (
 
 	"github.com/hanjunlee/argocui/internal/config"
 	"github.com/hanjunlee/argocui/internal/ui"
+	"github.com/hanjunlee/argocui/pkg/resource"
+	"github.com/hanjunlee/argocui/pkg/resource/mock"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
 
 	"github.com/jroimartin/gocui"
@@ -34,9 +36,17 @@ func main() {
 	g := newGui()
 	defer g.Close()
 
-	m := &ui.Manager{}
+	repo := &mock.Repo{}
+	svc := resource.NewService(repo)
+
+	m := &ui.Manager{
+		Svc: svc,
+		SvcEntries: map[string]resource.UseCase{
+			"mock": svc,
+		},
+	}
 	g.SetManager(m)
-	
+
 	if err := m.Keybinding(g); err != nil {
 		log.Panic(err)
 	}
@@ -77,7 +87,7 @@ func newGui() *gocui.Gui {
 		log.Panic(err)
 	}
 
-	g.SelFgColor = gocui.ColorYellow
+	g.Highlight = false
 	g.InputEsc = true
 	return g
 }

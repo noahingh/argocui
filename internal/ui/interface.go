@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"github.com/hanjunlee/argocui/pkg/argo"
+	"github.com/hanjunlee/argocui/pkg/resource"
 	"github.com/jroimartin/gocui"
 )
 
@@ -22,5 +22,5 @@ type ManagerIface interface {
 	// NewSwitcher switch services.
 	NewSwitcher(g *gocui.Gui) error
 	// ReturnSwitcher return the service.
-	ReturnSwitcher(g *gocui.Gui) (argo.UseCase, error)
+	ReturnSwitcher(g *gocui.Gui) (resource.UseCase, error)
 }

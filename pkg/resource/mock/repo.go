@@ -30,6 +30,11 @@ func (r *Repo) Get(key string) interface{} {
 func (r *Repo) Search(pattern string) []interface{} {
 	animals := make([]interface{}, 0)
 	for _, a := range zoo {
+		if pattern == "" {
+			animals = append(animals, a)
+			continue
+		}
+
 		if i := strings.Index(string(a), pattern); i != -1 {
 			animals = append(animals, a)
 		}
