@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/cache"
+)
+
+const (
+	namespace = "default"
 )
 
 // Animal is the name of animal.
@@ -25,7 +28,7 @@ func NewAnimal(name string) *Animal {
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
-			Namespace: "default",
+			Namespace: namespace,
 		},
 	}
 }
@@ -66,7 +69,6 @@ func (r *Repo) Search(pattern string) []runtime.Object {
 		}
 
 		ka, _ := cache.MetaNamespaceKeyFunc(a)
-		logrus.Info(ka, pattern)
 		if i := strings.Index(ka, pattern); i != -1 {
 			animals = append(animals, a)
 		}
