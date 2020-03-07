@@ -1,7 +1,7 @@
 package resource
 
 import (
-	"github.com/hanjunlee/argocui/pkg/resource/mock"
+	"github.com/hanjunlee/argocui/pkg/runtime/mock"
 )
 
 // Service is the layer of use case, it encapsulates and implements all of the use cases of the system.

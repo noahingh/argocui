@@ -9,7 +9,7 @@ import (
 	"github.com/hanjunlee/argocui/internal/config"
 	"github.com/hanjunlee/argocui/internal/ui"
 	"github.com/hanjunlee/argocui/pkg/resource"
-	"github.com/hanjunlee/argocui/pkg/resource/mock"
+	"github.com/hanjunlee/argocui/pkg/runtime/mock"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
 
 	"github.com/jroimartin/gocui"

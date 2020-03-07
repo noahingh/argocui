@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/hanjunlee/argocui/pkg/resource"
-	"github.com/hanjunlee/argocui/pkg/resource/mock"
+	"github.com/hanjunlee/argocui/pkg/runtime/mock"
 	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
 	"github.com/willf/pad"
 
