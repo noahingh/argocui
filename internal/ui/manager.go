@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	resource "github.com/hanjunlee/argocui/pkg/runtime"
+	runtime "github.com/hanjunlee/argocui/pkg/runtime"
 	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
 	"k8s.io/client-go/tools/cache"
 
@@ -23,8 +23,11 @@ const (
 
 // Manager is the manager of UI.
 type Manager struct {
-	Svc        resource.UseCase
-	SvcEntries map[string]resource.UseCase
+	Svc        runtime.UseCase
+	SvcEntries map[string]runtime.UseCase
+
+	// Cache the list after search query.
+	cache []string
 
 	// Dected is the string dected by the Dector.
 	Dected string
@@ -49,11 +52,14 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 	}
 
 	v.Clear()
+
+	m.cache = make([]string, 0)
 	for _, o := range m.Svc.Search(m.Dected) {
 		gvk := o.GetObjectKind().GroupVersionKind()
 		switch gvk.Kind {
 		case "Mock":
 			key, _ := cache.MetaNamespaceKeyFunc(o)
+			m.cache = append(m.cache, key)
 			fmt.Fprintln(v, key)
 		}
 	}
@@ -111,6 +117,24 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 		func(g *gocui.Gui, v *gocui.View) error {
 			log.Infof("new switcher")
 			return m.NewSwitcher(g)
+		}); err != nil {
+		return err
+	}
+
+	if err := g.SetKeybinding(Core, gocui.KeyBackspace2, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			_, y, _ := viewutil.GetCursorPosition(g, v)
+			if y >= len(m.cache) {
+				log.Error("couldn't delete: the cursor is out of range.")
+				return nil
+			}
+
+			if err := m.Svc.Delete(m.cache[y]); err != nil {
+				log.Errorf("couldn't delete: %s", err)
+			} else {
+				log.Infof("delete the runtime: %s", m.cache[y])
+			}
+			return nil
 		}); err != nil {
 		return err
 	}
@@ -229,7 +253,7 @@ func (m *Manager) NewSwitcher(g *gocui.Gui) error {
 }
 
 // ReturnSwitcher return the service from the switcher and back to the Core.
-func (m *Manager) ReturnSwitcher(g *gocui.Gui) (resource.UseCase, error) {
+func (m *Manager) ReturnSwitcher(g *gocui.Gui) (runtime.UseCase, error) {
 	v, _ := g.View(Switcher)
 	s, _ := v.Line(0)
 	s = strings.TrimSpace(s)
