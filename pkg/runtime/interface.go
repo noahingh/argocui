@@ -1,24 +1,19 @@
-package resource
+package runtime
 
-// RepoType is the type of repository. It gurantee the type of value.
-type RepoType string
-
-const (
-	// Mock is the type of mock repository.
-	Mock RepoType = "mock"
+import (
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // UseCase is the interface of use case.
 type UseCase interface {
-	GetRepoType() RepoType
-	Get(key string) interface{}
-	Search(pattern string) []interface{}
+	Get(key string) (runtime.Object, error)
+	Search(pattern string) []runtime.Object
 	Delete(key string) error
 }
 
 // Repo is the interface of repository.
 type Repo interface {
-	Get(key string) interface{}
-	Search(pattern string) []interface{}
+	Get(key string) (runtime.Object, error)
+	Search(pattern string) []runtime.Object
 	Delete(key string) error
 }

@@ -5,22 +5,48 @@ import (
 	"testing"
 )
 
+func TestNewAnimal(t *testing.T) {
+	type args struct {
+		name string
+	}
+	tests := []struct {
+		name string
+		args args
+		want *Animal
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewAnimal(tt.args.name); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewAnimal() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestRepo_Get(t *testing.T) {
 	type args struct {
 		key string
 	}
 	tests := []struct {
-		name string
-		r    *Repo
-		args args
-		want interface{}
+		name    string
+		r       *Repo
+		args    args
+		want    *Animal
+		wantErr bool
 	}{
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &Repo{}
-			if got := r.Get(tt.args.key); !reflect.DeepEqual(got, tt.want) {
+			got, err := r.Get(tt.args.key)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Repo.Get() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Repo.Get() = %v, want %v", got, tt.want)
 			}
 		})
@@ -35,7 +61,7 @@ func TestRepo_Search(t *testing.T) {
 		name string
 		r    *Repo
 		args args
-		want []interface{}
+		want []*Animal
 	}{
 		// TODO: Add test cases.
 	}
@@ -59,30 +85,7 @@ func TestRepo_Delete(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{
-			name: "nothing",
-			r:    &Repo{},
-			args: args{
-				key: "zibra",
-			},
-			wantErr: true,
-		},
-		{
-			name: "rm end element",
-			r:    &Repo{},
-			args: args{
-				key: "cheetah",
-			},
-			wantErr: false,
-		},
-		{
-			name: "rm camel",
-			r:    &Repo{},
-			args: args{
-				key: "camel",
-			},
-			wantErr: false,
-		},
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

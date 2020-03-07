@@ -8,7 +8,7 @@ import (
 
 	"github.com/hanjunlee/argocui/internal/config"
 	"github.com/hanjunlee/argocui/internal/ui"
-	"github.com/hanjunlee/argocui/pkg/resource"
+	"github.com/hanjunlee/argocui/pkg/runtime"
 	"github.com/hanjunlee/argocui/pkg/runtime/mock"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
 
@@ -37,11 +37,11 @@ func main() {
 	defer g.Close()
 
 	repo := &mock.Repo{}
-	svc := resource.NewService(repo)
+	svc := runtime.NewService(repo)
 
 	m := &ui.Manager{
 		Svc: svc,
-		SvcEntries: map[string]resource.UseCase{
+		SvcEntries: map[string]runtime.UseCase{
 			"mock": svc,
 		},
 	}
