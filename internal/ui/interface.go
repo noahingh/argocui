@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"github.com/hanjunlee/argocui/pkg/resource"
+	resource "github.com/hanjunlee/argocui/pkg/runtime"
 	"github.com/jroimartin/gocui"
 )
 

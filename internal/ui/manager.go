@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hanjunlee/argocui/pkg/resource"
-	"github.com/hanjunlee/argocui/pkg/resource/mock"
+	resource "github.com/hanjunlee/argocui/pkg/runtime"
 	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
-	"github.com/willf/pad"
+	"k8s.io/client-go/tools/cache"
 
 	"github.com/jroimartin/gocui"
 	log "github.com/sirupsen/logrus"
@@ -50,13 +49,12 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 	}
 
 	v.Clear()
-	// TODO: print the content.
-	switch m.Svc.GetRepoType() {
-	case resource.Mock:
-		w, _ := v.Size()
-		for _, a := range m.Svc.Search(m.Dected) {
-			s := pad.Right(string(a.(mock.Animal)), w, " ")
-			fmt.Fprintln(v, s)
+	for _, o := range m.Svc.Search(m.Dected) {
+		gvk := o.GetObjectKind().GroupVersionKind()
+		switch gvk.Kind {
+		case "Mock":
+			key, _ := cache.MetaNamespaceKeyFunc(o)
+			fmt.Fprintln(v, key)
 		}
 	}
 

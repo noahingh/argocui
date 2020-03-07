@@ -1,7 +1,7 @@
-package resource
+package runtime
 
 import (
-	"github.com/hanjunlee/argocui/pkg/resource/mock"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // Service is the layer of use case, it encapsulates and implements all of the use cases of the system.
@@ -16,24 +16,13 @@ func NewService(r Repo) *Service {
 	}
 }
 
-// GetRepoType return the type of repository.
-func (s *Service) GetRepoType() RepoType {
-	var t RepoType
-
-	switch s.repo.(type) {
-	case *mock.Repo:
-		t = Mock
-	}
-	return t
-}
-
 // Get get the workflow by the key, the format is "namespace/key", and if doesn't exist it return nil.
-func (s *Service) Get(key string) interface{} {
+func (s *Service) Get(key string) (runtime.Object, error) {
 	return s.repo.Get(key)
 }
 
 // Search get workflows which are matched with pattern.
-func (s *Service) Search(pattern string) []interface{} {
+func (s *Service) Search(pattern string) []runtime.Object {
 	return s.repo.Search(pattern)
 }
 
