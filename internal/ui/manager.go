@@ -19,6 +19,8 @@ const (
 	Dector string = "dector"
 	// Switcher is the switcher view.
 	Switcher string = "switcher"
+	// Remover is the remover view.
+	Remover string = "remover"
 )
 
 // Manager is the manager of UI.
@@ -31,6 +33,9 @@ type Manager struct {
 
 	// Dected is the string dected by the Dector.
 	Dected string
+
+	// Removed is the key which is removed.
+	Removed string
 }
 
 // Layout lay out the resource of service.
@@ -129,11 +134,8 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 				return nil
 			}
 
-			if err := m.Svc.Delete(m.cache[y]); err != nil {
-				log.Errorf("couldn't delete: %s", err)
-			} else {
-				log.Infof("delete the runtime: %s", m.cache[y])
-			}
+			log.Infof("switch to the remover: %s", m.cache[y])
+			m.NewRemover(g, m.cache[y])
 			return nil
 		}); err != nil {
 		return err
@@ -191,6 +193,26 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 		return err
 	}
 
+	// Remover keybinding
+	if err := g.SetKeybinding(Remover, gocui.KeyEnter, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			if err := m.ReturnRemover(g, true); err != nil {
+				log.Errorf("failed to delete: %s", err)
+			}
+			return nil
+		}); err != nil {
+		return err
+	}
+
+	if err := g.SetKeybinding(Remover, gocui.KeyEsc, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			m.ReturnRemover(g, false)
+
+			return nil
+		}); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -219,16 +241,16 @@ func (m *Manager) NewDector(g *gocui.Gui, init string) error {
 
 // ReturnDector return the result from the dector and back to the Core.
 func (m *Manager) ReturnDector(g *gocui.Gui) (string, error) {
-	v, _ := g.View(Dector)
+	v, _ := g.View(Core)
+	defer g.SetCurrentView(Core)
+	defer v.SetOrigin(0, 0)
+	defer v.SetCursor(0, 0)
+	defer g.DeleteView(Dector)
+
+	v, _ = g.View(Dector)
 	s, _ := v.Line(0)
 	s = strings.TrimSpace(s)
 
-	g.DeleteView(Dector)
-
-	v, _ = g.View(Core)
-	v.SetOrigin(0, 0)
-	v.SetCursor(0, 0)
-	g.SetCurrentView(Core)
 	return s, nil
 }
 
@@ -254,20 +276,63 @@ func (m *Manager) NewSwitcher(g *gocui.Gui) error {
 
 // ReturnSwitcher return the service from the switcher and back to the Core.
 func (m *Manager) ReturnSwitcher(g *gocui.Gui) (runtime.UseCase, error) {
-	v, _ := g.View(Switcher)
+	v, _ := g.View(Core)
+	defer g.SetCurrentView(Core)
+	defer v.SetOrigin(0, 0)
+	defer v.SetCursor(0, 0)
+	defer g.DeleteView(Switcher)
+
+	v, _ = g.View(Switcher)
 	s, _ := v.Line(0)
 	s = strings.TrimSpace(s)
-
-	g.DeleteView(Switcher)
-
-	v, _ = g.View(Core)
-	v.SetOrigin(0, 0)
-	v.SetCursor(0, 0)
-	g.SetCurrentView(Core)
 
 	svc, ok := m.SvcEntries[s]
 	if !ok {
 		return nil, fmt.Errorf("there is no service: %s", s)
 	}
 	return svc, nil
+}
+
+// NewRemover switch to the remover and confirm to delete or not.
+func (m *Manager) NewRemover(g *gocui.Gui, key string) error {
+	m.Removed = key
+
+	w, h := g.Size()
+	v, err := g.SetView(Remover, 0, h/4, w-1, h/4+2)
+	if err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
+		v.Title = "Delete(Y/n)?"
+		v.FgColor = gocui.ColorRed
+		v.Editable = true
+		v.Editor = gocui.EditorFunc(inlineEditor)
+
+		g.SetCurrentView(Remover)
+	}
+
+	return nil
+}
+
+// ReturnRemover switch to the Core.
+func (m *Manager) ReturnRemover(g *gocui.Gui, delete bool) error {
+	defer g.SetCurrentView(Core)
+	defer g.DeleteView(Remover)
+
+	v, _ := g.View(Remover)
+	s, _ := v.Line(0)
+	s = strings.TrimSpace(s)
+
+	if !delete {
+		return nil
+	}
+	if s != "Y" && s != "y" {
+		return nil
+	}
+
+	if err := m.Svc.Delete(m.Removed); err != nil {
+		return err
+	}
+	return nil
 }
