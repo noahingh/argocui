@@ -5,16 +5,20 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/hanjunlee/argocui/internal/config"
 	"github.com/hanjunlee/argocui/internal/ui"
 	"github.com/hanjunlee/argocui/pkg/runtime"
 	"github.com/hanjunlee/argocui/pkg/runtime/mock"
+	"github.com/hanjunlee/argocui/pkg/runtime/namespace"
+	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
 
 	"github.com/jroimartin/gocui"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
+	kubeInformers "k8s.io/client-go/informers"
 )
 
 var (
@@ -36,15 +40,13 @@ func main() {
 	g := newGui()
 	defer g.Close()
 
-	repo := &mock.Repo{}
-	svc := runtime.NewService(repo)
+	kubeFactory := kubeInformers.NewSharedInformerFactory(argoutil.GetKubeClientset(), 1*time.Minute)
+	svcs := getRuntimeServices(kubeFactory)
 
-	m := &ui.Manager{
-		Svc: svc,
-		SvcEntries: map[string]runtime.UseCase{
-			"mock": svc,
-		},
-	}
+	neverStop := make(<-chan struct{})
+	kubeFactory.WaitForCacheSync(neverStop)
+
+	m := ui.NewManager(svcs["mock"], svcs)
 	g.SetManager(m)
 
 	if err := m.Keybinding(g); err != nil {
@@ -90,4 +92,24 @@ func newGui() *gocui.Gui {
 	g.Highlight = false
 	g.InputEsc = true
 	return g
+}
+
+func getRuntimeServices(kubeFactory kubeInformers.SharedInformerFactory) map[string]runtime.UseCase {
+	neverStop := make(<-chan struct{})
+
+	// mock service
+	mockRepo := &mock.Repo{}
+	mockSvc := runtime.NewService(mockRepo)
+
+	// namespace service
+	nsInformer := kubeFactory.Core().V1().Namespaces()
+	go nsInformer.Informer().Run(neverStop)
+
+	nsRepo := namespace.NewRepo(nsInformer.Lister())
+	nsSvc := runtime.NewService(nsRepo)
+
+	return map[string]runtime.UseCase{
+		"mock": mockSvc,
+		"ns":   nsSvc,
+	}
 }

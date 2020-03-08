@@ -63,11 +63,6 @@ func (r *Repo) Get(key string) (runtime.Object, error) {
 func (r *Repo) Search(namespace, pattern string) []runtime.Object {
 	animals := make([]runtime.Object, 0)
 	for _, a := range zoo {
-		if pattern == "" {
-			animals = append(animals, a)
-			continue
-		}
-
 		ka, _ := cache.MetaNamespaceKeyFunc(a)
 		if i := strings.Index(ka, namespace+"/"+pattern); i != -1 {
 			animals = append(animals, a)

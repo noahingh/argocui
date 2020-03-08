@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	runtime "github.com/hanjunlee/argocui/pkg/runtime"
+	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
 	"k8s.io/client-go/tools/cache"
 
@@ -21,6 +22,8 @@ const (
 	Switcher string = "switcher"
 	// Remover is the remover view.
 	Remover string = "remover"
+
+	defaultSvc = "mock"
 )
 
 // Manager is the manager of UI.
@@ -28,9 +31,10 @@ type Manager struct {
 	Svc        runtime.UseCase
 	SvcEntries map[string]runtime.UseCase
 
+	// search
 	// namespace is the context of the manager.
 	namespace string
-	// Cache keys of runtime object after search query.
+	// cache is keys of runtime object after search query.
 	cache []string
 
 	// dected is the string dected by the Dector.
@@ -38,6 +42,17 @@ type Manager struct {
 
 	// removed is the key which is removed.
 	removed string
+}
+
+// NewManager create a new UI manager. The namespace of the manager is depends on the configuration of the user.
+func NewManager(svc runtime.UseCase, entries map[string]runtime.UseCase) *Manager {
+	ns, _ := argoutil.GetNamespace()
+
+	return &Manager{
+		Svc:        svc,
+		SvcEntries: entries,
+		namespace:  ns,
+	}
 }
 
 // Layout lay out the resource of service.
@@ -63,8 +78,14 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 	m.cache = make([]string, 0)
 	for _, o := range m.Svc.Search(m.namespace, m.dected) {
 		gvk := o.GetObjectKind().GroupVersionKind()
+		// TODO: confirm gvk is working.
 		switch gvk.Kind {
 		case "Mock":
+			key, _ := cache.MetaNamespaceKeyFunc(o)
+			m.cache = append(m.cache, key)
+			fmt.Fprintln(v, key)
+		// Namespace
+		case "":
 			key, _ := cache.MetaNamespaceKeyFunc(o)
 			m.cache = append(m.cache, key)
 			fmt.Fprintln(v, key)
@@ -84,6 +105,32 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 	}
 
 	// Core keybinding
+	if err := g.SetKeybinding(Core, gocui.KeyEnter, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			_, y, _ := viewutil.GetCursorPosition(g, v)
+			if y >= len(m.cache) {
+				log.Error("the cursor is out of range.")
+				return nil
+			}
+
+			o, err := m.Svc.Get(m.cache[y])
+			if err != nil {
+				log.Error("failed to get the object: %s", err)
+				return nil
+			}
+			gvk := o.GetObjectKind().GroupVersionKind()
+			switch gvk.Kind {
+			// Namespace
+			case "":
+				m.namespace, _ = cache.MetaNamespaceKeyFunc(o)
+				m.Svc = m.SvcEntries[defaultSvc]
+				log.Infof("switch namespace: %s", m.namespace)
+			}
+			return nil
+		}); err != nil {
+		return err
+	}
+
 	if err := g.SetKeybinding(Core, 'k', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return viewutil.MoveCursorUp(g, v, 0)
