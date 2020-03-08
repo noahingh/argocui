@@ -93,6 +93,7 @@ func TestRepo_Get(t *testing.T) {
 
 func TestRepo_Search(t *testing.T) {
 	type args struct {
+		namespace string
 		pattern string
 	}
 	tests := []struct {
@@ -105,6 +106,7 @@ func TestRepo_Search(t *testing.T) {
 			name: "search cheet",
 			r:    &Repo{},
 			args: args{
+				namespace: namespace,
 				pattern: "cheet",
 			},
 			want: []runtime.Object{
@@ -115,7 +117,7 @@ func TestRepo_Search(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &Repo{}
-			if got := r.Search(tt.args.pattern); !reflect.DeepEqual(got, tt.want) {
+			if got := r.Search(tt.args.namespace, tt.args.pattern); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Repo.Search() = %v, want %v", got, tt.want)
 			}
 		})

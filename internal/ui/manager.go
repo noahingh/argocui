@@ -28,14 +28,16 @@ type Manager struct {
 	Svc        runtime.UseCase
 	SvcEntries map[string]runtime.UseCase
 
-	// Cache the list after search query.
+	// namespace is the context of the manager.
+	namespace string
+	// Cache keys of runtime object after search query.
 	cache []string
 
-	// Dected is the string dected by the Dector.
-	Dected string
+	// dected is the string dected by the Dector.
+	dected string
 
-	// Removed is the key which is removed.
-	Removed string
+	// removed is the key which is removed.
+	removed string
 }
 
 // Layout lay out the resource of service.
@@ -59,7 +61,7 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 	v.Clear()
 
 	m.cache = make([]string, 0)
-	for _, o := range m.Svc.Search(m.Dected) {
+	for _, o := range m.Svc.Search(m.namespace, m.dected) {
 		gvk := o.GetObjectKind().GroupVersionKind()
 		switch gvk.Kind {
 		case "Mock":
@@ -113,7 +115,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 	if err := g.SetKeybinding(Core, '/', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			log.Infof("new dector")
-			return m.NewDector(g, m.Dected)
+			return m.NewDector(g, m.dected)
 		}); err != nil {
 		return err
 	}
@@ -148,7 +150,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 			if err != nil {
 				return err
 			}
-			m.Dected = dected
+			m.dected = dected
 			log.Infof("detect and set the word: %s", dected)
 
 			return nil
@@ -159,7 +161,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 	if err := g.SetKeybinding(Dector, gocui.KeyEsc, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			m.ReturnDector(g)
-			m.Dected = ""
+			m.dected = ""
 			log.Info("exit dector")
 
 			return nil
@@ -295,7 +297,7 @@ func (m *Manager) ReturnSwitcher(g *gocui.Gui) (runtime.UseCase, error) {
 
 // NewRemover switch to the remover and confirm to delete or not.
 func (m *Manager) NewRemover(g *gocui.Gui, key string) error {
-	m.Removed = key
+	m.removed = key
 
 	w, h := g.Size()
 	v, err := g.SetView(Remover, 0, h/4, w-1, h/4+2)
@@ -331,7 +333,7 @@ func (m *Manager) ReturnRemover(g *gocui.Gui, delete bool) error {
 		return nil
 	}
 
-	if err := m.Svc.Delete(m.Removed); err != nil {
+	if err := m.Svc.Delete(m.removed); err != nil {
 		return err
 	}
 	return nil

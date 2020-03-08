@@ -22,8 +22,8 @@ func (s *Service) Get(key string) (runtime.Object, error) {
 }
 
 // Search get workflows which are matched with pattern.
-func (s *Service) Search(pattern string) []runtime.Object {
-	return s.repo.Search(pattern)
+func (s *Service) Search(namespace, pattern string) []runtime.Object {
+	return s.repo.Search(namespace, pattern)
 }
 
 // Delete delete the workflow by the key.
