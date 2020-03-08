@@ -23,4 +23,11 @@ type ManagerIface interface {
 	NewSwitcher(g *gocui.Gui) error
 	// ReturnSwitcher return the service.
 	ReturnSwitcher(g *gocui.Gui) (resource.UseCase, error)
+
+	// Remover
+	//
+	// NewRemover switch to the remove with the key to delete.
+	NewRemover(g *gocui.Gui, key string) error
+	// ReturnRemover switch to the core view.
+	ReturnRemover(g *gocui.Gui, delete bool) error
 }
