@@ -78,7 +78,8 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 	m.cache = make([]string, 0)
 	for _, o := range m.Svc.Search(m.namespace, m.dected) {
 		gvk := o.GetObjectKind().GroupVersionKind()
-		// TODO: confirm gvk is working.
+		// TODO: using scheme to confirm the kind.
+		// https://godoc.org/k8s.io/client-go/kubernetes/scheme
 		switch gvk.Kind {
 		case "Mock":
 			key, _ := cache.MetaNamespaceKeyFunc(o)
