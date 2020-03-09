@@ -40,6 +40,7 @@ func main() {
 	g := newGui()
 	defer g.Close()
 
+	// TODO: mocking the clientset with test data.
 	kubeFactory := kubeInformers.NewSharedInformerFactory(argoutil.GetKubeClientset(), 1*time.Minute)
 	svcs := getRuntimeServices(kubeFactory)
 
