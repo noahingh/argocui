@@ -23,7 +23,7 @@ type Animal struct {
 func NewAnimal(name string) *Animal {
 	return &Animal{
 		TypeMeta: metav1.TypeMeta{
-			Kind:       "Mock",
+			Kind:       "Animal",
 			APIVersion: "argocui.github.com/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{

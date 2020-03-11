@@ -23,6 +23,7 @@ const (
 	// Remover is the remover view.
 	Remover string = "remover"
 
+	// TODO: change the default service Argo workflow.
 	defaultSvc = "mock"
 )
 
@@ -77,16 +78,18 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 
 	m.cache = make([]string, 0)
 	for _, o := range m.Svc.Search(m.namespace, m.dected) {
-		gvk := o.GetObjectKind().GroupVersionKind()
-		// TODO: using scheme to confirm the kind.
-		// https://godoc.org/k8s.io/client-go/kubernetes/scheme
+		gvk, _, err := objectKind(o)
+		if err != nil {
+			log.Errorf("failed to get gvk: %s", err)
+			continue
+		}
+
 		switch gvk.Kind {
-		case "Mock":
+		case "Animal":
 			key, _ := cache.MetaNamespaceKeyFunc(o)
 			m.cache = append(m.cache, key)
 			fmt.Fprintln(v, key)
-		// Namespace
-		case "":
+		case "Namespace":
 			key, _ := cache.MetaNamespaceKeyFunc(o)
 			m.cache = append(m.cache, key)
 			fmt.Fprintln(v, key)
@@ -116,13 +119,12 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 
 			o, err := m.Svc.Get(m.cache[y])
 			if err != nil {
-				log.Error("failed to get the object: %s", err)
+				log.Errorf("failed to get the object: %s", err)
 				return nil
 			}
-			gvk := o.GetObjectKind().GroupVersionKind()
+			gvk, _, _ := objectKind(o)
 			switch gvk.Kind {
-			// Namespace
-			case "":
+			case "Namespace":
 				m.namespace, _ = cache.MetaNamespaceKeyFunc(o)
 				m.Svc = m.SvcEntries[defaultSvc]
 				log.Infof("switch namespace: %s", m.namespace)
