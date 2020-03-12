@@ -23,7 +23,7 @@ type Animal struct {
 func NewAnimal(name string) *Animal {
 	return &Animal{
 		TypeMeta: metav1.TypeMeta{
-			Kind:       "Mock",
+			Kind:       "Animal",
 			APIVersion: "argocui.github.com/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
@@ -60,16 +60,11 @@ func (r *Repo) Get(key string) (runtime.Object, error) {
 }
 
 // Search return animal which is matched with the pattern.
-func (r *Repo) Search(pattern string) []runtime.Object {
+func (r *Repo) Search(namespace, pattern string) []runtime.Object {
 	animals := make([]runtime.Object, 0)
 	for _, a := range zoo {
-		if pattern == "" {
-			animals = append(animals, a)
-			continue
-		}
-
 		ka, _ := cache.MetaNamespaceKeyFunc(a)
-		if i := strings.Index(ka, pattern); i != -1 {
+		if i := strings.Index(ka, namespace+"/"+pattern); i != -1 {
 			animals = append(animals, a)
 		}
 	}
