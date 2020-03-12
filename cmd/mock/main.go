@@ -5,20 +5,25 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"time"
 
+	"github.com/hanjunlee/argocui/cmd/mock/serializer"
 	"github.com/hanjunlee/argocui/internal/config"
 	"github.com/hanjunlee/argocui/internal/ui"
-	"github.com/hanjunlee/argocui/pkg/runtime"
+	svc "github.com/hanjunlee/argocui/pkg/runtime"
 	"github.com/hanjunlee/argocui/pkg/runtime/mock"
 	"github.com/hanjunlee/argocui/pkg/runtime/namespace"
-	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
 
 	"github.com/jroimartin/gocui"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
+	"k8s.io/apimachinery/pkg/runtime"
 	kubeInformers "k8s.io/client-go/informers"
+	"k8s.io/client-go/kubernetes/fake"
+)
+
+const (
+	noResyncPeriod = 0
 )
 
 var (
@@ -26,6 +31,14 @@ var (
 	debug   = flag.Bool("debug", false, "Debug mode.")
 	trace   = flag.Bool("trace", false, "Debug as trace level.")
 )
+
+var (
+	namespaces []runtime.Object
+)
+
+func init() {
+	namespaces = getMockingNamespaces()
+}
 
 func main() {
 	// flag command
@@ -40,8 +53,8 @@ func main() {
 	g := newGui()
 	defer g.Close()
 
-	// TODO: mocking the clientset with test data.
-	kubeFactory := kubeInformers.NewSharedInformerFactory(argoutil.GetKubeClientset(), 1*time.Minute)
+	client := fake.NewSimpleClientset(namespaces...)
+	kubeFactory := kubeInformers.NewSharedInformerFactory(client, noResyncPeriod)
 	svcs := getRuntimeServices(kubeFactory)
 
 	neverStop := make(<-chan struct{})
@@ -95,21 +108,39 @@ func newGui() *gocui.Gui {
 	return g
 }
 
-func getRuntimeServices(kubeFactory kubeInformers.SharedInformerFactory) map[string]runtime.UseCase {
-	neverStop := make(<-chan struct{})
+func getMockingNamespaces() []runtime.Object {
+	const (
+		namespaces = "testdata/namespaces.yaml"
+	)
+	ret := make([]runtime.Object, 0)
 
+	yamls, _ := serializer.ReadYamlAndSplit(namespaces)
+	for _, y := range yamls {
+		o, err := serializer.ConvertToNamespace([]byte(y))
+		if err != nil {
+			panic(err)
+		}
+
+		ret = append(ret, o)
+	}
+	return ret
+}
+
+func getRuntimeServices(kubeFactory kubeInformers.SharedInformerFactory) map[string]svc.UseCase {
 	// mock service
 	mockRepo := &mock.Repo{}
-	mockSvc := runtime.NewService(mockRepo)
+	mockSvc := svc.NewService(mockRepo)
 
 	// namespace service
-	nsInformer := kubeFactory.Core().V1().Namespaces()
-	go nsInformer.Informer().Run(neverStop)
+	i := kubeFactory.Core().V1().Namespaces()
+	for _, n := range namespaces {
+		i.Informer().GetIndexer().Add(n)
+	}
 
-	nsRepo := namespace.NewRepo(nsInformer.Lister())
-	nsSvc := runtime.NewService(nsRepo)
+	nsRepo := namespace.NewRepo(i.Lister())
+	nsSvc := svc.NewService(nsRepo)
 
-	return map[string]runtime.UseCase{
+	return map[string]svc.UseCase{
 		"mock": mockSvc,
 		"ns":   nsSvc,
 	}

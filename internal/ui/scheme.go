@@ -15,6 +15,7 @@ var (
 func init() {
 	scheme.AddKnownTypes(schema.GroupVersion{Group: "argocui.github.com", Version: "v1"}, &mock.Animal{})
 	scheme.AddKnownTypes(schema.GroupVersion{Group: "", Version: "v1"}, &corev1.Namespace{})
+	// TODO: add the scheme workflow.
 }
 
 func objectKind(o runtime.Object) (schema.GroupVersionKind, bool, error) {
