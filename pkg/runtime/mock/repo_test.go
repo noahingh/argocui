@@ -24,7 +24,7 @@ func TestNewAnimal(t *testing.T) {
 			},
 			want: &Animal{
 				TypeMeta: metav1.TypeMeta{
-					Kind:       "Mock",
+					Kind:       "Animal",
 					APIVersion: "argocui.github.com/v1",
 				},
 				ObjectMeta: metav1.ObjectMeta{
