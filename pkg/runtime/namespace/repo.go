@@ -4,7 +4,7 @@ import (
 	"sort"
 	"strings"
 
-	err "github.com/hanjunlee/argocui/pkg/util/error"
+	err "github.com/hanjunlee/argocui/pkg/runtime/error"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
