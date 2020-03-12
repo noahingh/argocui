@@ -54,18 +54,17 @@ func NewRepo(
 }
 
 // WaitForSync wait for syncronize.
-func (a *Repo) WaitForSync(stop chan struct{}) error {
+func (r *Repo) WaitForSync(stop chan struct{}) error {
 	// run the controller
-	go a.c.run(stop)
+	go r.c.run(stop)
 
-	return a.c.waitForSynced(stop)
+	return r.c.waitForSynced(stop)
 }
 
 // Get get the workflow by the key, the format is "namespace/key", and if doesn't exist it return nil.
-func (a *Repo) Get(key string) (runtime.Object, error) {
-	w, err := a.s.GetWorkflow(key)
+func (r *Repo) Get(key string) (runtime.Object, error) {
+	w, err := r.s.GetWorkflow(key)
 	if err != nil {
-		a.log.Errorf("failed to get the '%s' workflow.", key)
 		return nil, err
 	}
 
@@ -73,16 +72,15 @@ func (a *Repo) Get(key string) (runtime.Object, error) {
 }
 
 // Search get workflows which are matched with pattern.
-func (a *Repo) Search(namespace, pattern string) []runtime.Object {
+func (r *Repo) Search(namespace, pattern string) []runtime.Object {
 	var (
 		wfs = make([]runtime.Object, 0)
 	)
 
-	keys := a.s.List(fmt.Sprintf("%s/*%s*", namespace, pattern))
+	keys := r.s.List(fmt.Sprintf("%s/*%s*", namespace, pattern))
 	for _, k := range keys {
-		w, err := a.s.GetWorkflow(k)
+		w, err := r.s.GetWorkflow(k)
 		if err != nil {
-			a.log.Errorf("failed to get the '%s' workflow.", k)
 			return nil
 		}
 
@@ -92,7 +90,7 @@ func (a *Repo) Search(namespace, pattern string) []runtime.Object {
 }
 
 // Delete delete the workflow by the key.
-func (a *Repo) Delete(key string) error {
+func (r *Repo) Delete(key string) error {
 	if key == "" {
 		return fmt.Errorf("there is no key to delete")
 	}
@@ -102,8 +100,7 @@ func (a *Repo) Delete(key string) error {
 		return err
 	}
 
-	a.log.Debugf("delete '%s' workflow", key)
-	err = a.ac.ArgoprojV1alpha1().Workflows(ns).Delete(n, &metav1.DeleteOptions{})
+	err = r.ac.ArgoprojV1alpha1().Workflows(ns).Delete(n, &metav1.DeleteOptions{})
 	if err != nil {
 		return err
 	}
@@ -112,8 +109,8 @@ func (a *Repo) Delete(key string) error {
 }
 
 // Logs get the channel to recieve Logs from a Argo workflow.
-func (a *Repo) Logs(ctx context.Context, key string) (<-chan Log, error) {
-	w, err := a.s.GetWorkflow(key)
+func (r *Repo) Logs(ctx context.Context, key string) (<-chan Log, error) {
+	w, err := r.s.GetWorkflow(key)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +119,7 @@ func (a *Repo) Logs(ctx context.Context, key string) (<-chan Log, error) {
 		ch = make(chan Log, 100)
 	)
 	// get logs and send to the channel.
-	err = a.logsWorkflow(ctx, ch, w)
+	err = r.logsWorkflow(ctx, ch, w)
 	if err != nil {
 		return nil, err
 	}
@@ -130,10 +127,9 @@ func (a *Repo) Logs(ctx context.Context, key string) (<-chan Log, error) {
 	return ch, nil
 }
 
-func (a *Repo) logsWorkflow(ctx context.Context, ch chan<- Log, w *wf.Workflow) error {
+func (r *Repo) logsWorkflow(ctx context.Context, ch chan<- Log, w *wf.Workflow) error {
 	err := util.DecompressWorkflow(w)
 	if err != nil {
-		a.log.Error(err)
 		return err
 	}
 
@@ -150,10 +146,10 @@ func (a *Repo) logsWorkflow(ctx context.Context, ch chan<- Log, w *wf.Workflow) 
 
 		// get logs from nodes at background.
 		go func() {
-			a.log.Tracef("log '%s' node.", n)
-			err := a.logsPod(ctx, ch, ns, n, dn)
+			log.Tracef("log '%s' node.", n)
+			err := r.logsPod(ctx, ch, ns, n, dn)
 			if err != nil {
-				a.log.Errorf("couldn't get logs from '%s' node: %s.", n, err)
+				log.Errorf("couldn't get logs from '%s' node: %s.", n, err)
 				return
 			}
 		}()
@@ -162,15 +158,12 @@ func (a *Repo) logsWorkflow(ctx context.Context, ch chan<- Log, w *wf.Workflow) 
 	return nil
 }
 
-func (a *Repo) logsPod(ctx context.Context, ch chan<- Log, ns string, n string, dn string) error {
+func (r *Repo) logsPod(ctx context.Context, ch chan<- Log, ns string, n string, dn string) error {
 	const (
 		mainContainerName = "main"
 	)
-	var (
-		key = ns + "/" + n
-	)
 
-	s, err := a.kc.CoreV1().Pods(ns).GetLogs(n, &corev1.PodLogOptions{
+	s, err := r.kc.CoreV1().Pods(ns).GetLogs(n, &corev1.PodLogOptions{
 		Container:  mainContainerName,
 		Follow:     true,
 		Timestamps: true, // add an RFC3339 or RFC3339Nano timestamp at the beginning
@@ -183,12 +176,12 @@ func (a *Repo) logsPod(ctx context.Context, ch chan<- Log, ns string, n string, 
 	for {
 		select {
 		case <-ctx.Done():
-			a.log.WithField("key", key).Trace("the context is closed.")
+			log.Trace("the context is closed.")
 			return nil
 
 		default:
 			if !scanner.Scan() {
-				a.log.WithField("key", key).Trace("finished to logs.")
+				log.Trace("finished to logs.")
 				return nil
 			}
 
@@ -197,7 +190,7 @@ func (a *Repo) logsPod(ctx context.Context, ch chan<- Log, ns string, n string, 
 
 			time, err := time.Parse(time.RFC3339, t)
 			if err != nil {
-				a.log.WithField("key", key).Warnf("can't parse the timestamp: %s", err)
+				log.Warnf("can't parse the timestamp: %s", err)
 				continue
 			}
 
