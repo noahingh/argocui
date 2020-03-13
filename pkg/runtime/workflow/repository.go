@@ -4,16 +4,18 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	"github.com/argoproj/argo/pkg/client/clientset/versioned"
-	informers "github.com/argoproj/argo/pkg/client/informers/externalversions/workflow/v1alpha1"
+	listerv1alpha1 "github.com/argoproj/argo/pkg/client/listers/workflow/v1alpha1"
 	"github.com/argoproj/argo/workflow/util"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
@@ -31,39 +33,32 @@ type Log struct {
 
 // Repo is the workflow repository it always syncronizes the workflows as the storage at background.
 type Repo struct {
-	c   *controller
-	s   *storage
 	ac  versioned.Interface
+	al  listerv1alpha1.WorkflowLister
 	kc  kubernetes.Interface
 	log *log.Entry
 }
 
 // NewRepo create a new workflow repository.
 func NewRepo(
-	argoClientset versioned.Interface, argoInformer informers.WorkflowInformer, kubeClientset kubernetes.Interface) *Repo {
-	s := newStorage(argoInformer)
-	c := newController(argoClientset, argoInformer, s)
+	argoClientset versioned.Interface, argoLister listerv1alpha1.WorkflowLister, kubeClientset kubernetes.Interface) *Repo {
 
 	repo := &Repo{
-		c:  c,
-		s:  s,
 		ac: argoClientset,
+		al: argoLister,
 		kc: kubeClientset,
 	}
 	return repo
 }
 
-// WaitForSync wait for syncronize.
-func (r *Repo) WaitForSync(stop chan struct{}) error {
-	// run the controller
-	go r.c.run(stop)
-
-	return r.c.waitForSynced(stop)
-}
-
 // Get get the workflow by the key, the format is "namespace/key", and if doesn't exist it return nil.
 func (r *Repo) Get(key string) (runtime.Object, error) {
-	w, err := r.s.GetWorkflow(key)
+	ns, n, err := cache.SplitMetaNamespaceKey(key)
+	if err != nil {
+		return nil, err
+	}
+
+	w, err := r.al.Workflows(ns).Get(n)
 	if err != nil {
 		return nil, err
 	}
@@ -74,19 +69,27 @@ func (r *Repo) Get(key string) (runtime.Object, error) {
 // Search get workflows which are matched with pattern.
 func (r *Repo) Search(namespace, pattern string) []runtime.Object {
 	var (
-		wfs = make([]runtime.Object, 0)
+		ret = make([]runtime.Object, 0)
 	)
 
-	keys := r.s.List(fmt.Sprintf("%s/*%s*", namespace, pattern))
-	for _, k := range keys {
-		w, err := r.s.GetWorkflow(k)
-		if err != nil {
-			return nil
+	ws, err := r.al.Workflows(namespace).List(labels.Everything())
+	if err != nil {
+		return ret
+	}
+	sort.Sort(workflows(ws))
+
+	for _, w := range ws {
+		name := w.GetName()
+		if pattern == "" {
+			ret = append(ret, w)
+			continue
 		}
 
-		wfs = append(wfs, w)
+		if i := strings.Index(name, pattern); i != -1 {
+			ret = append(ret, w)
+		}
 	}
-	return wfs
+	return ret
 }
 
 // Delete delete the workflow by the key.
@@ -110,7 +113,12 @@ func (r *Repo) Delete(key string) error {
 
 // Logs get the channel to recieve Logs from a Argo workflow.
 func (r *Repo) Logs(ctx context.Context, key string) (<-chan Log, error) {
-	w, err := r.s.GetWorkflow(key)
+	ns, n, err := cache.SplitMetaNamespaceKey(key)
+	if err != nil {
+		return nil, err
+	}
+
+	w, err := r.al.Workflows(ns).Get(n)
 	if err != nil {
 		return nil, err
 	}
