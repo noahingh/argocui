@@ -7,8 +7,10 @@ import (
 	runtime "github.com/hanjunlee/argocui/pkg/runtime"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
-	"k8s.io/client-go/tools/cache"
+	"github.com/hanjunlee/argocui/internal/ui/mock"
+	"github.com/hanjunlee/argocui/internal/ui/namespace"
 
+	"k8s.io/client-go/tools/cache"
 	"github.com/jroimartin/gocui"
 	log "github.com/sirupsen/logrus"
 )
@@ -25,6 +27,9 @@ const (
 
 	// TODO: change the default service Argo workflow.
 	defaultSvc = "mock"
+	
+	// headerSize is the size of table header.
+	headerSize = 2
 )
 
 // Manager is the manager of UI.
@@ -70,31 +75,39 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 		v.Frame = true
 		v.SelBgColor = gocui.ColorYellow
 		v.SelFgColor = gocui.ColorBlack
+		v.SetCursor(0, headerSize)
 
 		g.SetCurrentView(Core)
 	}
 
-	v.Clear()
 
+	objs := m.Svc.Search(m.namespace, m.dected)
+
+	// cache first.
 	m.cache = make([]string, 0)
-	for _, o := range m.Svc.Search(m.namespace, m.dected) {
-		gvk, _, err := objectKind(o)
-		if err != nil {
-			log.Errorf("failed to get gvk: %s", err)
-			continue
-		}
-
-		switch gvk.Kind {
-		case "Animal":
-			key, _ := cache.MetaNamespaceKeyFunc(o)
-			m.cache = append(m.cache, key)
-			fmt.Fprintln(v, key)
-		case "Namespace":
-			key, _ := cache.MetaNamespaceKeyFunc(o)
-			m.cache = append(m.cache, key)
-			fmt.Fprintln(v, key)
-		}
+	for _, o := range objs {
+		key, _ := cache.MetaNamespaceKeyFunc(o)
+		m.cache = append(m.cache, key)
 	}
+	if len(objs) == 0 {
+		v.Clear()
+		return nil
+	}
+
+	// presentor
+	var p Presentor
+	gvk, _, _ := objectKind(objs[0])
+
+	// TODO: set the presentor
+	switch  gvk.Kind {
+	case "Animal":
+		p = mock.NewPresentor()
+	case "Namespace":
+		p = namespace.NewPresentor()
+	}
+
+	v.Clear()
+	p.PresentCore(v, objs)
 
 	return nil
 }
@@ -112,6 +125,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 	if err := g.SetKeybinding(Core, gocui.KeyEnter, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			_, y, _ := viewutil.GetCursorPosition(g, v)
+			y = y - headerSize
 			if y >= len(m.cache) {
 				log.Error("the cursor is out of range.")
 				return nil
@@ -136,7 +150,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 
 	if err := g.SetKeybinding(Core, 'k', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
-			return viewutil.MoveCursorUp(g, v, 0)
+			return viewutil.MoveCursorUp(g, v, headerSize)
 		}); err != nil {
 		return err
 	}
@@ -150,7 +164,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 
 	if err := g.SetKeybinding(Core, 'H', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
-			return viewutil.MoveCursorTop(g, v, 0)
+			return viewutil.MoveCursorTop(g, v, headerSize)
 		}); err != nil {
 		return err
 	}
@@ -181,6 +195,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 	if err := g.SetKeybinding(Core, gocui.KeyBackspace2, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			_, y, _ := viewutil.GetCursorPosition(g, v)
+			y = y - headerSize
 			if y >= len(m.cache) {
 				log.Error("couldn't delete: the cursor is out of range.")
 				return nil
@@ -296,7 +311,7 @@ func (m *Manager) ReturnDector(g *gocui.Gui) (string, error) {
 	v, _ := g.View(Core)
 	defer g.SetCurrentView(Core)
 	defer v.SetOrigin(0, 0)
-	defer v.SetCursor(0, 0)
+	defer v.SetCursor(0, headerSize)
 	defer g.DeleteView(Dector)
 
 	v, _ = g.View(Dector)
@@ -331,7 +346,7 @@ func (m *Manager) ReturnSwitcher(g *gocui.Gui) (runtime.UseCase, error) {
 	v, _ := g.View(Core)
 	defer g.SetCurrentView(Core)
 	defer v.SetOrigin(0, 0)
-	defer v.SetCursor(0, 0)
+	defer v.SetCursor(0, headerSize)
 	defer g.DeleteView(Switcher)
 
 	v, _ = g.View(Switcher)
