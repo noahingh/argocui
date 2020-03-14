@@ -6,6 +6,7 @@ import (
 
 	"github.com/hanjunlee/argocui/pkg/runtime/mock"
 
+	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -52,6 +53,22 @@ func Test_objectKind(t *testing.T) {
 			},
 			want1: false,
 			wantErr: false,
+		},
+		{
+			name: "kind workflow",
+			args: args{
+				o: &wf.Workflow{
+					ObjectMeta: metav1.ObjectMeta{
+						GenerateName: "hello-world",
+						Namespace: "default",
+					},
+				},
+			},
+			want: schema.GroupVersionKind{
+				Group: "argoproj.io",
+				Version: "v1alpha1",
+				Kind: "Workflow",
+			},
 		},
 	}
 	for _, tt := range tests {

@@ -12,14 +12,19 @@ import (
 	svc "github.com/hanjunlee/argocui/pkg/runtime"
 	"github.com/hanjunlee/argocui/pkg/runtime/mock"
 	"github.com/hanjunlee/argocui/pkg/runtime/namespace"
+	"github.com/hanjunlee/argocui/pkg/runtime/workflow"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
 
+	"github.com/argoproj/argo/pkg/client/clientset/versioned"
+	af "github.com/argoproj/argo/pkg/client/clientset/versioned/fake"
+	ai "github.com/argoproj/argo/pkg/client/informers/externalversions"
 	"github.com/jroimartin/gocui"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"k8s.io/apimachinery/pkg/runtime"
-	kubeInformers "k8s.io/client-go/informers"
-	"k8s.io/client-go/kubernetes/fake"
+	ki "k8s.io/client-go/informers"
+	"k8s.io/client-go/kubernetes"
+	kf "k8s.io/client-go/kubernetes/fake"
 )
 
 const (
@@ -34,10 +39,12 @@ var (
 
 var (
 	namespaces []runtime.Object
+	workflows  []runtime.Object
 )
 
 func init() {
 	namespaces = getMockingNamespaces()
+	workflows = getMockingWorkflows()
 }
 
 func main() {
@@ -53,12 +60,16 @@ func main() {
 	g := newGui()
 	defer g.Close()
 
-	client := fake.NewSimpleClientset(namespaces...)
-	kubeFactory := kubeInformers.NewSharedInformerFactory(client, noResyncPeriod)
-	svcs := getRuntimeServices(kubeFactory)
+	kc := kf.NewSimpleClientset(namespaces...)
+	kfactory := ki.NewSharedInformerFactory(kc, noResyncPeriod)
+	ac := af.NewSimpleClientset(workflows...)
+	afactory := ai.NewSharedInformerFactory(ac, noResyncPeriod)
+
+	svcs := getRuntimeServices(kc, kfactory, ac, afactory)
 
 	neverStop := make(<-chan struct{})
-	kubeFactory.WaitForCacheSync(neverStop)
+	kfactory.WaitForCacheSync(neverStop)
+	afactory.WaitForCacheSync(neverStop)
 
 	m := ui.NewManager(svcs["mock"], svcs)
 	g.SetManager(m)
@@ -110,11 +121,11 @@ func newGui() *gocui.Gui {
 
 func getMockingNamespaces() []runtime.Object {
 	const (
-		namespaces = "testdata/namespaces.yaml"
+		file = "testdata/namespaces.yaml"
 	)
 	ret := make([]runtime.Object, 0)
 
-	yamls, _ := serializer.ReadYamlAndSplit(namespaces)
+	yamls, _ := serializer.ReadYamlAndSplit(file)
 	for _, y := range yamls {
 		o, err := serializer.ConvertToNamespace([]byte(y))
 		if err != nil {
@@ -126,22 +137,50 @@ func getMockingNamespaces() []runtime.Object {
 	return ret
 }
 
-func getRuntimeServices(kubeFactory kubeInformers.SharedInformerFactory) map[string]svc.UseCase {
+func getMockingWorkflows() []runtime.Object {
+	const (
+		file = "testdata/workflows.yaml"
+	)
+	ret := make([]runtime.Object, 0)
+
+	yamls, _ := serializer.ReadYamlAndSplit(file)
+	for _, y := range yamls {
+		o, err := serializer.ConvertToWorkflow([]byte(y))
+		if err != nil {
+			panic(err)
+		}
+
+		ret = append(ret, o)
+	}
+	return ret
+}
+
+func getRuntimeServices(kc kubernetes.Interface, kfactory ki.SharedInformerFactory, ac versioned.Interface, afactory ai.SharedInformerFactory) map[string]svc.UseCase {
 	// mock service
-	mockRepo := &mock.Repo{}
-	mockSvc := svc.NewService(mockRepo)
+	mr := &mock.Repo{}
+	ms := svc.NewService(mr)
 
 	// namespace service
-	i := kubeFactory.Core().V1().Namespaces()
+	ni := kfactory.Core().V1().Namespaces()
 	for _, n := range namespaces {
-		i.Informer().GetIndexer().Add(n)
+		ni.Informer().GetIndexer().Add(n)
 	}
 
-	nsRepo := namespace.NewRepo(i.Lister())
-	nsSvc := svc.NewService(nsRepo)
+	nr := namespace.NewRepo(ni.Lister())
+	ns := svc.NewService(nr)
+
+	// workflow service
+	wi := afactory.Argoproj().V1alpha1().Workflows()
+	for _, w := range workflows {
+		wi.Informer().GetIndexer().Add(w)
+	}
+
+	wr := workflow.NewRepo(ac, wi.Lister(), kc)
+	ws := svc.NewService(wr)
 
 	return map[string]svc.UseCase{
-		"mock": mockSvc,
-		"ns":   nsSvc,
+		"mock": ms,
+		"ns":   ns,
+		"wf":   ws,
 	}
 }

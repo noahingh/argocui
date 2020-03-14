@@ -1,4 +1,5 @@
 package workflow
+// TODO: write a unit-test for this workflow.
 
 import (
 	"bufio"
@@ -32,13 +33,11 @@ type Repo struct {
 }
 
 // NewRepo create a new workflow repository.
-func NewRepo(
-	argoClientset versioned.Interface, argoLister listerv1alpha1.WorkflowLister, kubeClientset kubernetes.Interface) *Repo {
-
+func NewRepo(ac versioned.Interface, al listerv1alpha1.WorkflowLister, kc kubernetes.Interface) *Repo {
 	repo := &Repo{
-		ac: argoClientset,
-		al: argoLister,
-		kc: kubeClientset,
+		ac: ac,
+		al: al,
+		kc: kc,
 	}
 	return repo
 }

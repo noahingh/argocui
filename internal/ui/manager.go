@@ -4,15 +4,16 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hanjunlee/argocui/internal/ui/mock"
+	"github.com/hanjunlee/argocui/internal/ui/namespace"
+	"github.com/hanjunlee/argocui/internal/ui/workflow"
 	runtime "github.com/hanjunlee/argocui/pkg/runtime"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
-	"github.com/hanjunlee/argocui/internal/ui/mock"
-	"github.com/hanjunlee/argocui/internal/ui/namespace"
 
-	"k8s.io/client-go/tools/cache"
 	"github.com/jroimartin/gocui"
 	log "github.com/sirupsen/logrus"
+	"k8s.io/client-go/tools/cache"
 )
 
 const (
@@ -103,6 +104,8 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 		p = mock.NewPresentor()
 	case "Namespace":
 		p = namespace.NewPresentor()
+	case "Workflow":
+		p = workflow.NewPresentor()
 	}
 
 	v.Clear()
