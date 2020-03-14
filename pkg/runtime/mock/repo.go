@@ -3,6 +3,10 @@ package mock
 import (
 	"fmt"
 	"strings"
+	"context"
+
+	svc "github.com/hanjunlee/argocui/pkg/runtime"
+	err "github.com/hanjunlee/argocui/pkg/runtime/error"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -88,4 +92,9 @@ func (r *Repo) Delete(key string) error {
 	}
 
 	return fmt.Errorf("it doesn't exist: %s", key)
+}
+
+// Logs is not implemented.
+func (r *Repo) Logs(ctx context.Context, key string) (<-chan svc.Log, error) {
+	return nil, err.ErrNotImplement
 }

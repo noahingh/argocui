@@ -1,8 +1,10 @@
 package ui
 
 import (
-	resource "github.com/hanjunlee/argocui/pkg/runtime"
+	svc "github.com/hanjunlee/argocui/pkg/runtime"
+
 	"github.com/jroimartin/gocui"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // ManagerIface is the interface of manager.
@@ -22,7 +24,7 @@ type ManagerIface interface {
 	// NewSwitcher switch services.
 	NewSwitcher(g *gocui.Gui) error
 	// ReturnSwitcher return the service.
-	ReturnSwitcher(g *gocui.Gui) (resource.UseCase, error)
+	ReturnSwitcher(g *gocui.Gui) (svc.UseCase, error)
 
 	// Remover
 	//
@@ -30,4 +32,9 @@ type ManagerIface interface {
 	NewRemover(g *gocui.Gui, key string) error
 	// ReturnRemover switch to the core view.
 	ReturnRemover(g *gocui.Gui, delete bool) error
+}
+
+// Presentor present the resource looks pretty.
+type Presentor interface {
+	PresentCore(*gocui.View, []runtime.Object) error 
 }
