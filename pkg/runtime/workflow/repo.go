@@ -8,28 +8,20 @@ import (
 	"strings"
 	"time"
 
+	svc "github.com/hanjunlee/argocui/pkg/runtime"
+
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	"github.com/argoproj/argo/pkg/client/clientset/versioned"
 	listerv1alpha1 "github.com/argoproj/argo/pkg/client/listers/workflow/v1alpha1"
 	"github.com/argoproj/argo/workflow/util"
-
+	log "github.com/sirupsen/logrus"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
-
-	log "github.com/sirupsen/logrus"
 )
-
-// Log  is the struct of log.
-type Log struct {
-	DisplayName string
-	Pod         string
-	Message     string
-	Time        time.Time
-}
 
 // Repo is the workflow repository it always syncronizes the workflows as the storage at background.
 type Repo struct {
@@ -112,7 +104,7 @@ func (r *Repo) Delete(key string) error {
 }
 
 // Logs get the channel to recieve Logs from a Argo workflow.
-func (r *Repo) Logs(ctx context.Context, key string) (<-chan Log, error) {
+func (r *Repo) Logs(ctx context.Context, key string) (<-chan svc.Log, error) {
 	ns, n, err := cache.SplitMetaNamespaceKey(key)
 	if err != nil {
 		return nil, err
@@ -124,7 +116,7 @@ func (r *Repo) Logs(ctx context.Context, key string) (<-chan Log, error) {
 	}
 
 	var (
-		ch = make(chan Log, 100)
+		ch = make(chan svc.Log, 100)
 	)
 	// get logs and send to the channel.
 	err = r.logsWorkflow(ctx, ch, w)
@@ -135,7 +127,7 @@ func (r *Repo) Logs(ctx context.Context, key string) (<-chan Log, error) {
 	return ch, nil
 }
 
-func (r *Repo) logsWorkflow(ctx context.Context, ch chan<- Log, w *wf.Workflow) error {
+func (r *Repo) logsWorkflow(ctx context.Context, ch chan<- svc.Log, w *wf.Workflow) error {
 	err := util.DecompressWorkflow(w)
 	if err != nil {
 		return err
@@ -166,7 +158,7 @@ func (r *Repo) logsWorkflow(ctx context.Context, ch chan<- Log, w *wf.Workflow) 
 	return nil
 }
 
-func (r *Repo) logsPod(ctx context.Context, ch chan<- Log, ns string, n string, dn string) error {
+func (r *Repo) logsPod(ctx context.Context, ch chan<- svc.Log, ns string, n string, dn string) error {
 	const (
 		mainContainerName = "main"
 	)
@@ -202,7 +194,7 @@ func (r *Repo) logsPod(ctx context.Context, ch chan<- Log, ns string, n string, 
 				continue
 			}
 
-			ch <- Log{
+			ch <- svc.Log{
 				DisplayName: dn,
 				Pod:         n,
 				Message:     m,
