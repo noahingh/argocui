@@ -1,9 +1,11 @@
 package namespace
 
 import (
+	"context"
 	"sort"
 	"strings"
 
+	svc "github.com/hanjunlee/argocui/pkg/runtime"
 	err "github.com/hanjunlee/argocui/pkg/runtime/error"
 
 	corev1 "k8s.io/api/core/v1"
@@ -71,4 +73,9 @@ func (r *Repo) Search(namespace, pattern string) []runtime.Object {
 // Delete is not implemented.
 func (r *Repo) Delete(key string) error {
 	return err.ErrNotImplement
+}
+
+// Logs is not implemented.
+func (r *Repo) Logs(ctx context.Context, key string) (<-chan svc.Log, error) {
+	return nil, err.ErrNotImplement
 }

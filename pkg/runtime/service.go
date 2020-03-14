@@ -1,6 +1,8 @@
 package runtime
 
 import (
+	"context"
+
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -16,17 +18,22 @@ func NewService(r Repo) *Service {
 	}
 }
 
-// Get get the workflow by the key, the format is "namespace/key", and if doesn't exist it return nil.
+// Get get the object by the key, the format is "namespace/key", and if doesn't exist it return nil.
 func (s *Service) Get(key string) (runtime.Object, error) {
 	return s.repo.Get(key)
 }
 
-// Search get workflows which are matched with pattern.
+// Search get objects which are matched with pattern.
 func (s *Service) Search(namespace, pattern string) []runtime.Object {
 	return s.repo.Search(namespace, pattern)
 }
 
-// Delete delete the workflow by the key.
+// Delete delete the object by the key.
 func (s *Service) Delete(key string) error {
 	return s.repo.Delete(key)
+}
+
+// Logs follow logs from the object until the context is done.
+func (s *Service) Logs(ctx context.Context, key string) (<-chan Log, error) {
+	return s.repo.Logs(ctx, key)
 }

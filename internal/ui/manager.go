@@ -98,7 +98,6 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 	var p Presentor
 	gvk, _, _ := objectKind(objs[0])
 
-	// TODO: set the presentor
 	switch  gvk.Kind {
 	case "Animal":
 		p = mock.NewPresentor()
