@@ -9,6 +9,7 @@ import (
 	"github.com/hanjunlee/argocui/internal/ui/workflow"
 	runtime "github.com/hanjunlee/argocui/pkg/runtime"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
+	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
 	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
 
 	"github.com/jroimartin/gocui"
@@ -73,7 +74,7 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 		}
 
 		v.Highlight = true
-		v.Frame = true
+		v.Frame = false
 		v.SelBgColor = gocui.ColorYellow
 		v.SelFgColor = gocui.ColorBlack
 		v.SetCursor(0, headerSize)
@@ -92,6 +93,7 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 	}
 	if len(objs) == 0 {
 		v.Clear()
+		fmt.Fprintln(v, colorutil.ChangeColor("Sorry, there's no objects.", gocui.ColorYellow))
 		return nil
 	}
 
