@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hanjunlee/argocui/internal/ui/mock"
 	"github.com/hanjunlee/argocui/internal/ui/namespace"
@@ -26,6 +27,8 @@ const (
 	Switcher string = "switcher"
 	// Remover is the remover view.
 	Remover string = "remover"
+	// Messenger is the messenger view.
+	Messenger string = "messenger"
 
 	defaultSvc = "wf"
 
@@ -66,7 +69,17 @@ func NewManager(svc runtime.UseCase, entries map[string]runtime.UseCase) *Manage
 func (m *Manager) Layout(g *gocui.Gui) error {
 	w, h := g.Size()
 
-	v, err := g.SetView(Core, 0, h/4+3, w-1, h-1)
+	// messenger
+	v, err := g.SetView(Messenger, 0, h-2, w-1, h)
+	if err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		v.Frame = false
+	}
+
+	// core
+	v, err = g.SetView(Core, 0, h/4+3, w-1, h-2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -228,6 +241,10 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 
 			gvk, _, _ := objectKind(o)
 			switch gvk.Kind {
+			case "Animal":
+				m.Warn(g, "sorry, animal is not implemented yet.")
+			case "Namespace":
+				m.Warn(g, "sorry, namespace is not implemented yet.")
 			case "Workflow":
 				log.Infof("switch to the informer: %s", key)
 				m.NewInformer(g, key)
@@ -245,6 +262,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 		func(g *gocui.Gui, v *gocui.View) error {
 			dected, err := m.ReturnDector(g)
 			if err != nil {
+				log.Errorf("failed to search: %s", err)
 				return err
 			}
 			m.dected = dected
@@ -271,7 +289,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 		func(g *gocui.Gui, v *gocui.View) error {
 			svc, err := m.ReturnSwitcher(g)
 			if err != nil {
-				log.Warnf("couldn't switch service: %s", err)
+				m.Error(g, fmt.Sprintf("failed to switch: %s", err))
 				return nil
 			}
 			m.Svc = svc
@@ -296,7 +314,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 	if err := g.SetKeybinding(Remover, gocui.KeyEnter, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			if err := m.ReturnRemover(g, true); err != nil {
-				log.Errorf("failed to delete: %s", err)
+				m.Error(g, fmt.Sprintf("failed to switch: %s", err))
 			}
 			return nil
 		}); err != nil {
@@ -434,4 +452,33 @@ func (m *Manager) ReturnRemover(g *gocui.Gui, delete bool) error {
 		return err
 	}
 	return nil
+}
+
+// Warn show up the message on the Messenger. 
+// It's recommended to use in GUI level such as keybinding and laytout.
+func (m *Manager) Warn(g *gocui.Gui, message string) {
+	v, _ := g.View(Messenger)
+	v.Clear()
+
+	message = colorutil.ChangeColor(message, gocui.ColorYellow)
+	v.Write([]byte(message))
+	go func(){
+		time.Sleep(2 * time.Second)
+		v.Clear()
+	}()
+}
+
+// Error show up the message on the Messenger.
+// It's recommended to use in GUI level such as keybinding and laytout.
+func (m *Manager) Error(g *gocui.Gui, message string) {
+	v, _ := g.View(Messenger)
+	v.Clear()
+
+	message = colorutil.ChangeColor(message, gocui.ColorRed)
+	v.Write([]byte(message))
+	go func(){
+		time.Sleep(2 * time.Second)
+		v.Clear()
+	}()
+	return 
 }
