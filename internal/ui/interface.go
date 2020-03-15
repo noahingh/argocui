@@ -1,7 +1,7 @@
 package ui
 
 import (
-	svc "github.com/hanjunlee/argocui/pkg/runtime"
+	svc "github.com/hanjunlee/argocui/internal/runtime"
 
 	"github.com/jroimartin/gocui"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -39,7 +39,7 @@ type ManagerIface interface {
 
 // Presentor present the resource looks pretty.
 type Presentor interface {
-	PresentCore(*gocui.View, []runtime.Object) error 
+	PresentCore(*gocui.View, []runtime.Object) error
 	PresentInformer(*gocui.View, runtime.Object) error
 	PresentFollower(*gocui.View, []svc.Log) error
 }

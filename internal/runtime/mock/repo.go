@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	svc "github.com/hanjunlee/argocui/pkg/runtime"
+	svc "github.com/hanjunlee/argocui/internal/runtime"
 	err "github.com/hanjunlee/argocui/pkg/util/error"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

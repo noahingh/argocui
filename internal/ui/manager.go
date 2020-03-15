@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/hanjunlee/argocui/internal/config"
+	"github.com/hanjunlee/argocui/internal/runtime"
 	"github.com/hanjunlee/argocui/internal/ui/mock"
 	"github.com/hanjunlee/argocui/internal/ui/namespace"
 	"github.com/hanjunlee/argocui/internal/ui/workflow"
-	"github.com/hanjunlee/argocui/pkg/runtime"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
 	viewutil "github.com/hanjunlee/argocui/pkg/util/view"

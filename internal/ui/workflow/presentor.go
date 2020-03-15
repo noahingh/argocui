@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	svc "github.com/hanjunlee/argocui/pkg/runtime"
+	svc "github.com/hanjunlee/argocui/internal/runtime"
 	tw "github.com/hanjunlee/argocui/pkg/tablewriter"
 	"github.com/hanjunlee/argocui/pkg/tree"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
