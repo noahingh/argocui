@@ -2,14 +2,15 @@ package namespace
 
 import (
 	tw "github.com/hanjunlee/argocui/pkg/tablewriter"
+	err "github.com/hanjunlee/argocui/pkg/util/error"
 
+	"github.com/jroimartin/gocui"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"github.com/jroimartin/gocui"
 )
 
 // Presentor is the presentor of mock.
-type Presentor struct {}
+type Presentor struct{}
 
 // NewPresentor create a new presentor.
 func NewPresentor() *Presentor {
@@ -36,4 +37,9 @@ func (p *Presentor) convertToRows(objs []runtime.Object) [][]string {
 		rows = append(rows, []string{n.GetName()})
 	}
 	return rows
+}
+
+// PresentInformer is not implemented.
+func (p *Presentor) PresentInformer(v *gocui.View, objs runtime.Object) error {
+	return err.ErrNotImplement
 }

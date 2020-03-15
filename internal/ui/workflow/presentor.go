@@ -1,9 +1,12 @@
 package workflow
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	tw "github.com/hanjunlee/argocui/pkg/tablewriter"
+	"github.com/hanjunlee/argocui/pkg/tree"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
@@ -52,4 +55,36 @@ func (p *Presentor) convertToRows(objs []runtime.Object) [][]string {
 		rows = append(rows, []string{namespace, name, status, age, duration})
 	}
 	return rows
+}
+
+// PresentInformer display the general information and the tree of nodes like "argo get".
+func (p *Presentor) PresentInformer(v *gocui.View, obj runtime.Object) error {
+	w := obj.(*wf.Workflow)
+	width, _ := v.Size()
+
+	// general information
+	t := tw.NewTableWriter(v)
+	t.SetColumnWidths([]int{40, width - 40})
+	t.AppendBulk(tree.GetInfo(w))
+	t.Render(); 
+	fmt.Fprintln(v, strings.Repeat(" ", width))
+
+	// tree
+	t = tw.NewTableWriter(v)
+	t.SetColumns([]string{"STEP", "PODNAME", "DURATION", "MESSAGE"})
+	t.SetColumnWidths([]int{50, 50, 15, width - 95})
+
+	tr, err := tree.GetTreeRoot(w)
+	if err != nil {
+		return err
+	}
+	t.AppendBulk(tr)
+
+	te, err := tree.GetTreeExit(w)
+	if err != nil {
+		return err
+	}
+	t.AppendBulk(te)
+
+	return t.Render()
 }
