@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	svc "github.com/hanjunlee/argocui/pkg/runtime"
-	err "github.com/hanjunlee/argocui/pkg/runtime/error"
+	err "github.com/hanjunlee/argocui/pkg/util/error"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"

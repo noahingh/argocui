@@ -35,3 +35,81 @@ status:
       type: Pod
   phase: Succeeded
   startedAt: "2020-03-14T12:22:56Z"
+---
+# https://github.com/argoproj/argo/blob/master/examples/retry-on-error.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  creationTimestamp: "2020-03-14T13:40:18Z"
+  generateName: retry-on-error-
+  generation: 11
+  labels:
+    workflows.argoproj.io/completed: "true"
+    workflows.argoproj.io/phase: Failed
+  name: retry-on-error-2xtbq
+  namespace: default
+spec:
+  entrypoint: error-container
+  templates:
+  - container:
+      args:
+      - import random; import sys; exit_code = random.choice(range(0, 5)); sys.exit(exit_code)
+      command:
+      - python
+      - -c
+      image: python
+      name: ""
+    name: error-container
+    retryStrategy:
+      limit: 2
+      retryPolicy: Always
+status:
+  finishedAt: "2020-03-14T13:41:20Z"
+  message: No more retries left
+  nodes:
+    retry-on-error-2xtbq:
+      children:
+      - retry-on-error-2xtbq-3958910271
+      - retry-on-error-2xtbq-268084354
+      - retry-on-error-2xtbq-134010497
+      displayName: retry-on-error-2xtbq
+      finishedAt: "2020-03-14T13:41:20Z"
+      id: retry-on-error-2xtbq
+      message: No more retries left
+      name: retry-on-error-2xtbq
+      phase: Failed
+      startedAt: "2020-03-14T13:40:18Z"
+      templateName: error-container
+      type: Retry
+    retry-on-error-2xtbq-134010497:
+      displayName: retry-on-error-2xtbq(2)
+      finishedAt: "2020-03-14T13:41:19Z"
+      id: retry-on-error-2xtbq-134010497
+      message: failed with exit code 3
+      name: retry-on-error-2xtbq(2)
+      phase: Failed
+      startedAt: "2020-03-14T13:41:09Z"
+      templateName: error-container
+      type: Pod
+    retry-on-error-2xtbq-268084354:
+      displayName: retry-on-error-2xtbq(1)
+      finishedAt: "2020-03-14T13:41:08Z"
+      id: retry-on-error-2xtbq-268084354
+      message: failed with exit code 1
+      name: retry-on-error-2xtbq(1)
+      phase: Failed
+      startedAt: "2020-03-14T13:40:56Z"
+      templateName: error-container
+      type: Pod
+    retry-on-error-2xtbq-3958910271:
+      displayName: retry-on-error-2xtbq(0)
+      finishedAt: "2020-03-14T13:40:55Z"
+      id: retry-on-error-2xtbq-3958910271
+      message: failed with exit code 4
+      name: retry-on-error-2xtbq(0)
+      phase: Failed
+      startedAt: "2020-03-14T13:40:18Z"
+      templateName: error-container
+      type: Pod
+  phase: Failed
+  startedAt: "2020-03-14T13:40:18Z"

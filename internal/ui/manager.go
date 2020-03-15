@@ -27,9 +27,8 @@ const (
 	// Remover is the remover view.
 	Remover string = "remover"
 
-	// TODO: change the default service Argo workflow.
-	defaultSvc = "mock"
-	
+	defaultSvc = "wf"
+
 	// headerSize is the size of table header.
 	headerSize = 2
 )
@@ -74,14 +73,13 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 		}
 
 		v.Highlight = true
-		v.Frame = false
+		v.Frame = true
 		v.SelBgColor = gocui.ColorYellow
 		v.SelFgColor = gocui.ColorBlack
 		v.SetCursor(0, headerSize)
 
 		g.SetCurrentView(Core)
 	}
-
 
 	objs := m.Svc.Search(m.namespace, m.dected)
 
@@ -101,7 +99,7 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 	var p Presentor
 	gvk, _, _ := objectKind(objs[0])
 
-	switch  gvk.Kind {
+	switch gvk.Kind {
 	case "Animal":
 		p = mock.NewPresentor()
 	case "Namespace":
@@ -207,6 +205,36 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 
 			log.Infof("switch to the remover: %s", m.cache[y])
 			m.NewRemover(g, m.cache[y])
+			return nil
+		}); err != nil {
+		return err
+	}
+
+	if err := g.SetKeybinding(Core, gocui.KeyCtrlG, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			_, y, _ := viewutil.GetCursorPosition(g, v)
+			y = y - headerSize
+			if y >= len(m.cache) {
+				log.Error("couldn't delete: the cursor is out of range.")
+				return nil
+			}
+
+			key := m.cache[y]
+			o, err := m.Svc.Get(key)
+			if err != nil {
+				log.Errorf("failed to get the object: %s", err)
+				return nil
+			}
+
+			gvk, _, _ := objectKind(o)
+			switch gvk.Kind {
+			case "Workflow":
+				log.Infof("switch to the informer: %s", key)
+				m.NewInformer(g, key)
+			default:
+				return nil
+			}
+
 			return nil
 		}); err != nil {
 		return err

@@ -1,12 +1,12 @@
 package mock
 
 import (
+	"context"
 	"fmt"
 	"strings"
-	"context"
 
 	svc "github.com/hanjunlee/argocui/pkg/runtime"
-	err "github.com/hanjunlee/argocui/pkg/runtime/error"
+	err "github.com/hanjunlee/argocui/pkg/util/error"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

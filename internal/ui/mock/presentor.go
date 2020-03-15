@@ -3,8 +3,9 @@ package mock
 import (
 	mockrepo "github.com/hanjunlee/argocui/pkg/runtime/mock"
 	tw "github.com/hanjunlee/argocui/pkg/tablewriter"
-	"k8s.io/apimachinery/pkg/runtime"
+	err "github.com/hanjunlee/argocui/pkg/util/error"
 
+	"k8s.io/apimachinery/pkg/runtime"
 	"github.com/jroimartin/gocui"
 )
 
@@ -39,4 +40,9 @@ func (p *Presentor) convertToRows(objs []runtime.Object) [][]string {
 		rows = append(rows, []string{a.GetNamespace(), a.GetName()})
 	}
 	return rows
+}
+
+// PresentInformer is not implemented.
+func (p *Presentor) PresentInformer(v *gocui.View, objs runtime.Object) error {
+	return err.ErrNotImplement
 }
