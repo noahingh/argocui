@@ -1,14 +1,16 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
 
+	"github.com/hanjunlee/argocui/internal/config"
 	"github.com/hanjunlee/argocui/internal/ui/mock"
 	"github.com/hanjunlee/argocui/internal/ui/namespace"
 	"github.com/hanjunlee/argocui/internal/ui/workflow"
-	runtime "github.com/hanjunlee/argocui/pkg/runtime"
+	"github.com/hanjunlee/argocui/pkg/runtime"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
 	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
@@ -25,6 +27,10 @@ const (
 	Dector string = "dector"
 	// Switcher is the switcher view.
 	Switcher string = "switcher"
+	// Informer is the informer view.
+	Informer string = "informer"
+	// Follower is th follower view.
+	Follower string = "follower"
 	// Remover is the remover view.
 	Remover string = "remover"
 	// Messenger is the messenger view.
@@ -47,9 +53,15 @@ type Manager struct {
 	// cache is keys of runtime object after search query.
 	cache []string
 
+	// dector
 	// dected is the string dected by the Dector.
 	dected string
 
+	// follower
+	logs   []runtime.Log
+	cancel context.CancelFunc
+
+	// remover
 	// removed is the key which is removed.
 	removed string
 }
@@ -69,8 +81,30 @@ func NewManager(svc runtime.UseCase, entries map[string]runtime.UseCase) *Manage
 func (m *Manager) Layout(g *gocui.Gui) error {
 	w, h := g.Size()
 
+	v, err := g.SetView("helper", 0, 1, w/3-1, h/5-1)
+	if err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
+		v.Frame = false
+
+	}
+	v.Clear()
+	m.layoutHelper(v)
+
+	v, err = g.SetView("brand", w/2, 1, w-1, h/5-1)
+	if err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
+		v.Frame = false
+		fmt.Fprintf(v, colorutil.ChangeColor(config.Logo, gocui.ColorYellow))
+	}
+
 	// messenger
-	v, err := g.SetView(Messenger, 0, h-2, w-1, h)
+	v, err = g.SetView(Messenger, 0, h-2, w-1, h)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -79,7 +113,7 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 	}
 
 	// core
-	v, err = g.SetView(Core, 0, h/4+3, w-1, h-2)
+	v, err = g.SetView(Core, 0, h/5+3, w-1, h-2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -257,6 +291,40 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 		return err
 	}
 
+	if err := g.SetKeybinding(Core, gocui.KeyCtrlL, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			_, y, _ := viewutil.GetCursorPosition(g, v)
+			y = y - headerSize
+			if y >= len(m.cache) {
+				log.Error("couldn't delete: the cursor is out of range.")
+				return nil
+			}
+
+			key := m.cache[y]
+			o, err := m.Svc.Get(key)
+			if err != nil {
+				log.Errorf("failed to get the object: %s", err)
+				return nil
+			}
+
+			gvk, _, _ := objectKind(o)
+			switch gvk.Kind {
+			case "Animal":
+				m.Warn(g, "sorry, animal is not implemented yet.")
+			case "Namespace":
+				m.Warn(g, "sorry, namespace couldn't follow up.")
+			case "Workflow":
+				log.Infof("switch to the follower: %s", key)
+				m.NewFollower(g, key)
+			default:
+				return nil
+			}
+
+			return nil
+		}); err != nil {
+		return err
+	}
+
 	// Dector keybinding
 	if err := g.SetKeybinding(Dector, gocui.KeyEnter, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
@@ -336,7 +404,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 // NewDector create and switch to the dector.
 func (m *Manager) NewDector(g *gocui.Gui, init string) error {
 	w, h := g.Size()
-	v, err := g.SetView(Dector, 0, h/4, w-1, h/4+2)
+	v, err := g.SetView(Dector, 0, h/5, w-1, h/5+2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -374,7 +442,7 @@ func (m *Manager) ReturnDector(g *gocui.Gui) (string, error) {
 // NewSwitcher create and switch to the Switcher
 func (m *Manager) NewSwitcher(g *gocui.Gui) error {
 	w, h := g.Size()
-	v, err := g.SetView(Switcher, 0, h/4, w-1, h/4+2)
+	v, err := g.SetView(Switcher, 0, h/5, w-1, h/5+2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -415,7 +483,7 @@ func (m *Manager) NewRemover(g *gocui.Gui, key string) error {
 	m.removed = key
 
 	w, h := g.Size()
-	v, err := g.SetView(Remover, 0, h/4, w-1, h/4+2)
+	v, err := g.SetView(Remover, 0, h/5, w-1, h/5+2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -454,7 +522,7 @@ func (m *Manager) ReturnRemover(g *gocui.Gui, delete bool) error {
 	return nil
 }
 
-// Warn show up the message on the Messenger. 
+// Warn show up the message on the Messenger.
 // It's recommended to use in GUI level such as keybinding and laytout.
 func (m *Manager) Warn(g *gocui.Gui, message string) {
 	v, _ := g.View(Messenger)
@@ -462,7 +530,7 @@ func (m *Manager) Warn(g *gocui.Gui, message string) {
 
 	message = colorutil.ChangeColor(message, gocui.ColorYellow)
 	v.Write([]byte(message))
-	go func(){
+	go func() {
 		time.Sleep(2 * time.Second)
 		v.Clear()
 	}()
@@ -476,9 +544,9 @@ func (m *Manager) Error(g *gocui.Gui, message string) {
 
 	message = colorutil.ChangeColor(message, gocui.ColorRed)
 	v.Write([]byte(message))
-	go func(){
+	go func() {
 		time.Sleep(2 * time.Second)
 		v.Clear()
 	}()
-	return 
+	return
 }

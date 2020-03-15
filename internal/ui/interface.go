@@ -24,6 +24,10 @@ type ManagerIface interface {
 	NewInformer(g *gocui.Gui) error
 	ReturnInformer(g *gocui.Gui) error
 
+	// Follower
+	NewFollower(g *gocui.Gui, key string) error
+	ReturnFollower(g *gocui.Gui) error
+
 	// Remover
 	NewRemover(g *gocui.Gui, key string) error
 	ReturnRemover(g *gocui.Gui, delete bool) error
@@ -37,4 +41,5 @@ type ManagerIface interface {
 type Presentor interface {
 	PresentCore(*gocui.View, []runtime.Object) error 
 	PresentInformer(*gocui.View, runtime.Object) error
+	PresentFollower(*gocui.View, []svc.Log) error
 }
