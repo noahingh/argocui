@@ -19,13 +19,13 @@ require (
 	github.com/jcmturner/gofork v1.0.0 // indirect
 	github.com/jroimartin/gocui v0.4.0
 	github.com/json-iterator/go v1.1.7 // indirect
-	github.com/nsf/termbox-go v0.0.0-20190817171036-93860e161317 // indirect
+	github.com/mattn/go-runewidth v0.0.8 // indirect
+	github.com/nsf/termbox-go v0.0.0-20200204031403-4d2b513ad8be // indirect
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/ryanuber/go-glob v1.0.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/valyala/fasttemplate v1.1.0 // indirect
 	github.com/willf/pad v0.0.0-20190207183901-eccfe5d84172
-	golang.org/x/exp v0.0.0-20190510132918-efd6b22b2522
 	golang.org/x/net v0.0.0-20191011234655-491137f69257 // indirect
 	golang.org/x/time v0.0.0-20190921001708-c4c64cad1fd0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
