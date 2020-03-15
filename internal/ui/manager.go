@@ -454,7 +454,8 @@ func (m *Manager) ReturnRemover(g *gocui.Gui, delete bool) error {
 	return nil
 }
 
-// Warn show up the message on the Messenger.
+// Warn show up the message on the Messenger. 
+// It's recommended to use in GUI level such as keybinding and laytout.
 func (m *Manager) Warn(g *gocui.Gui, message string) {
 	v, _ := g.View(Messenger)
 	v.Clear()
@@ -468,6 +469,7 @@ func (m *Manager) Warn(g *gocui.Gui, message string) {
 }
 
 // Error show up the message on the Messenger.
+// It's recommended to use in GUI level such as keybinding and laytout.
 func (m *Manager) Error(g *gocui.Gui, message string) {
 	v, _ := g.View(Messenger)
 	v.Clear()
