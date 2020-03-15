@@ -27,6 +27,10 @@ type ManagerIface interface {
 	// Remover
 	NewRemover(g *gocui.Gui, key string) error
 	ReturnRemover(g *gocui.Gui, delete bool) error
+
+	// Messenger
+	Warn(*gocui.Gui, string)
+	Error(*gocui.Gui, string)
 }
 
 // Presentor present the resource looks pretty.
