@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	svc "github.com/hanjunlee/argocui/pkg/runtime"
+	svc "github.com/hanjunlee/argocui/internal/runtime"
 	err "github.com/hanjunlee/argocui/pkg/util/error"
 
 	corev1 "k8s.io/api/core/v1"

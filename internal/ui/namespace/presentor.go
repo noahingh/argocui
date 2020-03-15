@@ -1,7 +1,7 @@
 package namespace
 
 import (
-	svc "github.com/hanjunlee/argocui/pkg/runtime"
+	svc "github.com/hanjunlee/argocui/internal/runtime"
 	tw "github.com/hanjunlee/argocui/pkg/tablewriter"
 	err "github.com/hanjunlee/argocui/pkg/util/error"
 

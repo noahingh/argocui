@@ -1,13 +1,13 @@
 package mock
 
 import (
-	svc "github.com/hanjunlee/argocui/pkg/runtime"
-	mockrepo "github.com/hanjunlee/argocui/pkg/runtime/mock"
+	svc "github.com/hanjunlee/argocui/internal/runtime"
+	mockrepo "github.com/hanjunlee/argocui/internal/runtime/mock"
 	tw "github.com/hanjunlee/argocui/pkg/tablewriter"
 	err "github.com/hanjunlee/argocui/pkg/util/error"
 
-	"k8s.io/apimachinery/pkg/runtime"
 	"github.com/jroimartin/gocui"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // Presentor is the presentor of mock.

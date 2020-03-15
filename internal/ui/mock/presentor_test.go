@@ -4,12 +4,12 @@ import (
 	"reflect"
 	"testing"
 
-	mockrepo "github.com/hanjunlee/argocui/pkg/runtime/mock"
+	mockrepo "github.com/hanjunlee/argocui/internal/runtime/mock"
 
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-func NewObjects(ss... string) []runtime.Object {
+func NewObjects(ss ...string) []runtime.Object {
 	objs := make([]runtime.Object, 0)
 	for _, s := range ss {
 		a := mockrepo.NewAnimal(s)
@@ -30,7 +30,7 @@ func TestPresentor_convertToRows(t *testing.T) {
 	}{
 		{
 			name: "convert",
-			p: &Presentor{},
+			p:    &Presentor{},
 			args: args{
 				objs: NewObjects("alligator", "ant"),
 			},

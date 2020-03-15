@@ -1,4 +1,5 @@
 package workflow
+
 // TODO: write a unit-test for this workflow.
 
 import (
@@ -9,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	svc "github.com/hanjunlee/argocui/pkg/runtime"
+	svc "github.com/hanjunlee/argocui/internal/runtime"
 
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	"github.com/argoproj/argo/pkg/client/clientset/versioned"

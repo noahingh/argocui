@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/hanjunlee/argocui/internal/config"
+	svc "github.com/hanjunlee/argocui/internal/runtime"
+	"github.com/hanjunlee/argocui/internal/runtime/namespace"
+	"github.com/hanjunlee/argocui/internal/runtime/workflow"
 	"github.com/hanjunlee/argocui/internal/ui"
-	svc "github.com/hanjunlee/argocui/pkg/runtime"
-	"github.com/hanjunlee/argocui/pkg/runtime/namespace"
-	"github.com/hanjunlee/argocui/pkg/runtime/workflow"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
 

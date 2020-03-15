@@ -8,11 +8,11 @@ import (
 
 	"github.com/hanjunlee/argocui/cmd/mock/serializer"
 	"github.com/hanjunlee/argocui/internal/config"
+	svc "github.com/hanjunlee/argocui/internal/runtime"
+	"github.com/hanjunlee/argocui/internal/runtime/mock"
+	"github.com/hanjunlee/argocui/internal/runtime/namespace"
+	"github.com/hanjunlee/argocui/internal/runtime/workflow"
 	"github.com/hanjunlee/argocui/internal/ui"
-	svc "github.com/hanjunlee/argocui/pkg/runtime"
-	"github.com/hanjunlee/argocui/pkg/runtime/mock"
-	"github.com/hanjunlee/argocui/pkg/runtime/namespace"
-	"github.com/hanjunlee/argocui/pkg/runtime/workflow"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
 
 	"github.com/argoproj/argo/pkg/client/clientset/versioned"

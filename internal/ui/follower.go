@@ -2,11 +2,11 @@ package ui
 
 import (
 	"context"
-	"time"
 	"sort"
+	"time"
 
+	"github.com/hanjunlee/argocui/internal/runtime"
 	"github.com/hanjunlee/argocui/internal/ui/workflow"
-	"github.com/hanjunlee/argocui/pkg/runtime"
 	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
 
 	"github.com/jroimartin/gocui"

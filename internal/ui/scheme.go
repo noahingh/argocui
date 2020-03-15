@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"github.com/hanjunlee/argocui/pkg/runtime/mock"
+	"github.com/hanjunlee/argocui/internal/runtime/mock"
 
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	corev1 "k8s.io/api/core/v1"

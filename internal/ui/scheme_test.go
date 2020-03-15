@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hanjunlee/argocui/pkg/runtime/mock"
+	"github.com/hanjunlee/argocui/internal/runtime/mock"
 
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -30,11 +30,11 @@ func Test_objectKind(t *testing.T) {
 				o: mock.NewAnimal("alligator"),
 			},
 			want: schema.GroupVersionKind{
-				Group: "argocui.github.com",
+				Group:   "argocui.github.com",
 				Version: "v1",
-				Kind: "Animal",
+				Kind:    "Animal",
 			},
-			want1: false,
+			want1:   false,
 			wantErr: false,
 		},
 		{
@@ -47,11 +47,11 @@ func Test_objectKind(t *testing.T) {
 				},
 			},
 			want: schema.GroupVersionKind{
-				Group: "",
+				Group:   "",
 				Version: "v1",
-				Kind: "Namespace",
+				Kind:    "Namespace",
 			},
-			want1: false,
+			want1:   false,
 			wantErr: false,
 		},
 		{
@@ -60,14 +60,14 @@ func Test_objectKind(t *testing.T) {
 				o: &wf.Workflow{
 					ObjectMeta: metav1.ObjectMeta{
 						GenerateName: "hello-world",
-						Namespace: "default",
+						Namespace:    "default",
 					},
 				},
 			},
 			want: schema.GroupVersionKind{
-				Group: "argoproj.io",
+				Group:   "argoproj.io",
 				Version: "v1alpha1",
-				Kind: "Workflow",
+				Kind:    "Workflow",
 			},
 		},
 	}
