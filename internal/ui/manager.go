@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -8,7 +9,7 @@ import (
 	"github.com/hanjunlee/argocui/internal/ui/mock"
 	"github.com/hanjunlee/argocui/internal/ui/namespace"
 	"github.com/hanjunlee/argocui/internal/ui/workflow"
-	runtime "github.com/hanjunlee/argocui/pkg/runtime"
+	"github.com/hanjunlee/argocui/pkg/runtime"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
 	viewutil "github.com/hanjunlee/argocui/pkg/util/view"
@@ -25,6 +26,10 @@ const (
 	Dector string = "dector"
 	// Switcher is the switcher view.
 	Switcher string = "switcher"
+	// Informer is the informer view.
+	Informer string = "informer"
+	// Follower is th follower view.
+	Follower string = "follower"
 	// Remover is the remover view.
 	Remover string = "remover"
 	// Messenger is the messenger view.
@@ -47,9 +52,15 @@ type Manager struct {
 	// cache is keys of runtime object after search query.
 	cache []string
 
+	// dector
 	// dected is the string dected by the Dector.
 	dected string
 
+	// follower
+	logs []runtime.Log
+	cancel context.CancelFunc
+
+	// remover
 	// removed is the key which is removed.
 	removed string
 }
@@ -248,6 +259,40 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 			case "Workflow":
 				log.Infof("switch to the informer: %s", key)
 				m.NewInformer(g, key)
+			default:
+				return nil
+			}
+
+			return nil
+		}); err != nil {
+		return err
+	}
+
+	if err := g.SetKeybinding(Core, gocui.KeyCtrlL, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			_, y, _ := viewutil.GetCursorPosition(g, v)
+			y = y - headerSize
+			if y >= len(m.cache) {
+				log.Error("couldn't delete: the cursor is out of range.")
+				return nil
+			}
+
+			key := m.cache[y]
+			o, err := m.Svc.Get(key)
+			if err != nil {
+				log.Errorf("failed to get the object: %s", err)
+				return nil
+			}
+
+			gvk, _, _ := objectKind(o)
+			switch gvk.Kind {
+			case "Animal":
+				m.Warn(g, "sorry, animal is not implemented yet.")
+			case "Namespace":
+				m.Warn(g, "sorry, namespace couldn't follow up.")
+			case "Workflow":
+				log.Infof("switch to the follower: %s", key)
+				m.NewFollower(g, key)
 			default:
 				return nil
 			}

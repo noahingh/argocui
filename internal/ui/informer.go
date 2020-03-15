@@ -10,11 +10,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	// Informer is the informer view.
-	Informer string = "informer"
-)
-
 // NewInformer create a new view to display the information of a object.
 func (m *Manager) NewInformer(g *gocui.Gui, key string) error {
 	w, h := g.Size()
@@ -35,7 +30,7 @@ func (m *Manager) NewInformer(g *gocui.Gui, key string) error {
 	}
 
 	// set keybinding
-	if err := g.SetKeybinding("", gocui.KeyEsc, gocui.ModNone,
+	if err := g.SetKeybinding(Informer, gocui.KeyEsc, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return m.ReturnInformer(g)
 		}); err != nil {

@@ -1,6 +1,7 @@
 package mock
 
 import (
+	svc "github.com/hanjunlee/argocui/pkg/runtime"
 	mockrepo "github.com/hanjunlee/argocui/pkg/runtime/mock"
 	tw "github.com/hanjunlee/argocui/pkg/tablewriter"
 	err "github.com/hanjunlee/argocui/pkg/util/error"
@@ -44,5 +45,10 @@ func (p *Presentor) convertToRows(objs []runtime.Object) [][]string {
 
 // PresentInformer is not implemented.
 func (p *Presentor) PresentInformer(v *gocui.View, objs runtime.Object) error {
+	return err.ErrNotImplement
+}
+
+// PresentFollower is not implemented.
+func (p *Presentor) PresentFollower(v *gocui.View, logs []svc.Log) error {
 	return err.ErrNotImplement
 }
