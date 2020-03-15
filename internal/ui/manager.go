@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hanjunlee/argocui/internal/config"
 	"github.com/hanjunlee/argocui/internal/ui/mock"
 	"github.com/hanjunlee/argocui/internal/ui/namespace"
 	"github.com/hanjunlee/argocui/internal/ui/workflow"
@@ -57,7 +58,7 @@ type Manager struct {
 	dected string
 
 	// follower
-	logs []runtime.Log
+	logs   []runtime.Log
 	cancel context.CancelFunc
 
 	// remover
@@ -80,8 +81,30 @@ func NewManager(svc runtime.UseCase, entries map[string]runtime.UseCase) *Manage
 func (m *Manager) Layout(g *gocui.Gui) error {
 	w, h := g.Size()
 
+	v, err := g.SetView("helper", 0, 1, w/3-1, h/5-1)
+	if err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
+		v.Frame = false
+
+	}
+	v.Clear()
+	m.layoutHelper(v)
+
+	v, err = g.SetView("brand", w/2, 1, w-1, h/5-1)
+	if err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+
+		v.Frame = false
+		fmt.Fprintf(v, colorutil.ChangeColor(config.Logo, gocui.ColorYellow))
+	}
+
 	// messenger
-	v, err := g.SetView(Messenger, 0, h-2, w-1, h)
+	v, err = g.SetView(Messenger, 0, h-2, w-1, h)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -90,7 +113,7 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 	}
 
 	// core
-	v, err = g.SetView(Core, 0, h/4+3, w-1, h-2)
+	v, err = g.SetView(Core, 0, h/5+3, w-1, h-2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -381,7 +404,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 // NewDector create and switch to the dector.
 func (m *Manager) NewDector(g *gocui.Gui, init string) error {
 	w, h := g.Size()
-	v, err := g.SetView(Dector, 0, h/4, w-1, h/4+2)
+	v, err := g.SetView(Dector, 0, h/5, w-1, h/5+2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -419,7 +442,7 @@ func (m *Manager) ReturnDector(g *gocui.Gui) (string, error) {
 // NewSwitcher create and switch to the Switcher
 func (m *Manager) NewSwitcher(g *gocui.Gui) error {
 	w, h := g.Size()
-	v, err := g.SetView(Switcher, 0, h/4, w-1, h/4+2)
+	v, err := g.SetView(Switcher, 0, h/5, w-1, h/5+2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -460,7 +483,7 @@ func (m *Manager) NewRemover(g *gocui.Gui, key string) error {
 	m.removed = key
 
 	w, h := g.Size()
-	v, err := g.SetView(Remover, 0, h/4, w-1, h/4+2)
+	v, err := g.SetView(Remover, 0, h/5, w-1, h/5+2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -499,7 +522,7 @@ func (m *Manager) ReturnRemover(g *gocui.Gui, delete bool) error {
 	return nil
 }
 
-// Warn show up the message on the Messenger. 
+// Warn show up the message on the Messenger.
 // It's recommended to use in GUI level such as keybinding and laytout.
 func (m *Manager) Warn(g *gocui.Gui, message string) {
 	v, _ := g.View(Messenger)
@@ -507,7 +530,7 @@ func (m *Manager) Warn(g *gocui.Gui, message string) {
 
 	message = colorutil.ChangeColor(message, gocui.ColorYellow)
 	v.Write([]byte(message))
-	go func(){
+	go func() {
 		time.Sleep(2 * time.Second)
 		v.Clear()
 	}()
@@ -521,9 +544,9 @@ func (m *Manager) Error(g *gocui.Gui, message string) {
 
 	message = colorutil.ChangeColor(message, gocui.ColorRed)
 	v.Write([]byte(message))
-	go func(){
+	go func() {
 		time.Sleep(2 * time.Second)
 		v.Clear()
 	}()
-	return 
+	return
 }

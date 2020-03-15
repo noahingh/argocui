@@ -15,7 +15,7 @@ func (m *Manager) NewInformer(g *gocui.Gui, key string) error {
 	w, h := g.Size()
 
 	// set view
-	v, err := g.SetView(Informer, 0, h/4+3, w-1, h-1)
+	v, err := g.SetView(Informer, 0, h/5+3, w-1, h-1)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
