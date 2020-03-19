@@ -11,7 +11,7 @@ import (
 	svc "github.com/hanjunlee/argocui/internal/runtime"
 	"github.com/hanjunlee/argocui/internal/runtime/mock"
 	"github.com/hanjunlee/argocui/internal/runtime/namespace"
-	"github.com/hanjunlee/argocui/internal/runtime/workflow"
+	workflow "github.com/hanjunlee/argocui/internal/runtime/workflow/fake"
 	"github.com/hanjunlee/argocui/internal/ui"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
 
@@ -175,7 +175,7 @@ func getRuntimeServices(kc kubernetes.Interface, kfactory ki.SharedInformerFacto
 		wi.Informer().GetIndexer().Add(w)
 	}
 
-	wr := workflow.NewRepo(ac, wi.Lister(), kc)
+	wr := workflow.NewRepo(ac, wi.Informer(), wi.Lister())
 	ws := svc.NewService(wr)
 
 	return map[string]svc.UseCase{

@@ -4,18 +4,19 @@ import (
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 )
 
-type workflows []*wf.Workflow
+// Workflows is the list sorted by start time and finished time.
+type Workflows []*wf.Workflow
 
-func (w workflows) Len() int {
+func (w Workflows) Len() int {
 	return len(w)
 }
 
-func (w workflows) Less(i, j int) bool {
+func (w Workflows) Less(i, j int) bool {
 	wi, wj := w[i], w[j]
 	return less(wi, wj)
 }
 
-func (w workflows) Swap(i, j int) {
+func (w Workflows) Swap(i, j int) {
 	tmp := w[i]
 	w[i] = w[j]
 	w[j] = tmp

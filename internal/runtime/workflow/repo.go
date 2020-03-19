@@ -1,6 +1,5 @@
 package workflow
 
-// TODO: write a unit-test for this workflow.
 
 import (
 	"bufio"
@@ -69,7 +68,7 @@ func (r *Repo) Search(namespace, pattern string) []runtime.Object {
 	if err != nil {
 		return ret
 	}
-	sort.Sort(workflows(ws))
+	sort.Sort(Workflows(ws))
 
 	for _, w := range ws {
 		name := w.GetName()
