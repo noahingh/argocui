@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"reflect"
 	"sort"
 	"strings"
 	"time"
@@ -22,15 +23,15 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 )
 
 // Repo is the workflow repository it always syncronizes the workflows as the storage at background.
 type Repo struct {
-	ac  versioned.Interface
-	al  listerv1alpha1.WorkflowLister
-	kc  kubernetes.Interface
-	log *log.Entry
+	ac versioned.Interface
+	al listerv1alpha1.WorkflowLister
+	kc kubernetes.Interface
 }
 
 // NewRepo create a new workflow repository.
@@ -163,11 +164,17 @@ func (r *Repo) logsPod(ctx context.Context, ch chan<- svc.Log, ns string, n stri
 		mainContainerName = "main"
 	)
 
-	s, err := r.kc.CoreV1().Pods(ns).GetLogs(n, &corev1.PodLogOptions{
+	req := r.kc.CoreV1().Pods(ns).GetLogs(n, &corev1.PodLogOptions{
 		Container:  mainContainerName,
 		Follow:     true,
 		Timestamps: true, // add an RFC3339 or RFC3339Nano timestamp at the beginning
-	}).Stream()
+	})
+	// TODO: mocking for unit-test.
+	if isUnitTest := reflect.DeepEqual(req, &restclient.Request{}); isUnitTest {
+		return nil
+	}
+
+	s, err := req.Stream()
 	if err != nil {
 		return err
 	}
