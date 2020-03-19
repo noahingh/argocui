@@ -5,7 +5,6 @@ go 1.13
 require (
 	github.com/argoproj/argo v2.4.1+incompatible
 	github.com/argoproj/pkg v0.0.0-20191031223000-02a6aac40ac4
-	github.com/asaskevich/EventBus v0.0.0-20180315140547-d46933a94f05
 	github.com/colinmarc/hdfs v1.1.4-0.20180805212432-9746310a4d31 // indirect
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dustin/go-humanize v1.0.0 // indirect
@@ -22,7 +21,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.8 // indirect
 	github.com/nsf/termbox-go v0.0.0-20200204031403-4d2b513ad8be // indirect
 	github.com/pkg/errors v0.8.1 // indirect
-	github.com/ryanuber/go-glob v1.0.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/valyala/fasttemplate v1.1.0 // indirect
 	github.com/willf/pad v0.0.0-20190207183901-eccfe5d84172
