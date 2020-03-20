@@ -81,7 +81,7 @@ func NewManager(svc runtime.UseCase, entries map[string]runtime.UseCase) *Manage
 func (m *Manager) Layout(g *gocui.Gui) error {
 	w, h := g.Size()
 
-	v, err := g.SetView("helper", 0, 1, w/3-1, h/5-1)
+	v, err := g.SetView("context", 0, 1, w/3-1, h/5-1)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -91,7 +91,7 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 
 	}
 	v.Clear()
-	m.layoutHelper(v)
+	m.layoutContext(v)
 
 	v, err = g.SetView("brand", w/2, 1, w-1, h/5-1)
 	if err != nil {
