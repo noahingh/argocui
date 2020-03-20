@@ -7,11 +7,12 @@ import (
 	"path/filepath"
 
 	"github.com/hanjunlee/argocui/cmd/mock/serializer"
+	"github.com/hanjunlee/argocui/cmd/mock/yaml"
 	"github.com/hanjunlee/argocui/internal/config"
 	svc "github.com/hanjunlee/argocui/internal/runtime"
 	"github.com/hanjunlee/argocui/internal/runtime/mock"
 	"github.com/hanjunlee/argocui/internal/runtime/namespace"
-	"github.com/hanjunlee/argocui/internal/runtime/workflow"
+	workflow "github.com/hanjunlee/argocui/internal/runtime/workflow/fake"
 	"github.com/hanjunlee/argocui/internal/ui"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
 
@@ -125,7 +126,7 @@ func getMockingNamespaces() []runtime.Object {
 	)
 	ret := make([]runtime.Object, 0)
 
-	yamls, _ := serializer.ReadYamlAndSplit(file)
+	yamls, _ := yaml.ReadYamlAndSplit(file)
 	for _, y := range yamls {
 		o, err := serializer.ConvertToNamespace([]byte(y))
 		if err != nil {
@@ -139,11 +140,11 @@ func getMockingNamespaces() []runtime.Object {
 
 func getMockingWorkflows() []runtime.Object {
 	const (
-		file = "testdata/workflows.yaml"
+		dir = "testdata/workflows"
 	)
 	ret := make([]runtime.Object, 0)
 
-	yamls, _ := serializer.ReadYamlAndSplit(file)
+	yamls, _ := yaml.ReadDirYaml(dir)
 	for _, y := range yamls {
 		o, err := serializer.ConvertToWorkflow([]byte(y))
 		if err != nil {
@@ -175,7 +176,7 @@ func getRuntimeServices(kc kubernetes.Interface, kfactory ki.SharedInformerFacto
 		wi.Informer().GetIndexer().Add(w)
 	}
 
-	wr := workflow.NewRepo(ac, wi.Lister(), kc)
+	wr := workflow.NewRepo(ac, wi.Informer(), wi.Lister())
 	ws := svc.NewService(wr)
 
 	return map[string]svc.UseCase{
