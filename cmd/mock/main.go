@@ -72,7 +72,7 @@ func main() {
 	kfactory.WaitForCacheSync(neverStop)
 	afactory.WaitForCacheSync(neverStop)
 
-	m := ui.NewManager(svcs["wf"], svcs)
+	m := ui.NewManager(svcs["mock"], svcs["ns"], svcs["wf"])
 	g.SetManager(m)
 
 	if err := m.Keybinding(g); err != nil {

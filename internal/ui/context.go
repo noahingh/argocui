@@ -10,7 +10,7 @@ import (
 	"github.com/jroimartin/gocui"
 )
 
-func (m *Manager) layoutHelper(v *gocui.View) {
+func (m *Manager) layoutContext(v *gocui.View) {
 	const (
 		argoRev    = config.ArgoVersion
 		argocuiRev = config.Version

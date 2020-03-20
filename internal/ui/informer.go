@@ -68,7 +68,7 @@ func (m *Manager) NewInformer(g *gocui.Gui, key string) error {
 	// refresh the view
 	go viewutil.RefreshViewPeriodic(g, v, 1*time.Second, func() error {
 		v.Clear()
-		o, err := m.Svc.Get(key)
+		o, err := m.svc.Get(key)
 		if err != nil {
 			log.Errorf("failed to get the object: %s", err)
 			return nil
