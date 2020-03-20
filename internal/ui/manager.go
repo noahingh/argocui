@@ -36,16 +36,16 @@ const (
 	// Messenger is the messenger view.
 	Messenger string = "messenger"
 
-	defaultSvc = "wf"
-
 	// headerSize is the size of table header.
 	headerSize = 2
 )
 
 // Manager is the manager of UI.
 type Manager struct {
-	Svc        runtime.UseCase
-	SvcEntries map[string]runtime.UseCase
+	svc          runtime.UseCase
+	mockSvc      runtime.UseCase
+	namespaceSvc runtime.UseCase
+	workflowSvc  runtime.UseCase
 
 	// search
 	// namespace is the context of the manager.
@@ -67,13 +67,15 @@ type Manager struct {
 }
 
 // NewManager create a new UI manager. The namespace of the manager is depends on the configuration of the user.
-func NewManager(svc runtime.UseCase, entries map[string]runtime.UseCase) *Manager {
+func NewManager(mock runtime.UseCase, namespace runtime.UseCase, workflow runtime.UseCase) *Manager {
 	ns, _ := argoutil.GetNamespace()
 
 	return &Manager{
-		Svc:        svc,
-		SvcEntries: entries,
-		namespace:  ns,
+		svc:          workflow,
+		mockSvc:      mock,
+		namespaceSvc: namespace,
+		workflowSvc:  workflow,
+		namespace:    ns,
 	}
 }
 
@@ -128,7 +130,7 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 		g.SetCurrentView(Core)
 	}
 
-	objs := m.Svc.Search(m.namespace, m.dected)
+	objs := m.svc.Search(m.namespace, m.dected)
 
 	// cache first.
 	m.cache = make([]string, 0)
@@ -136,22 +138,15 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 		key, _ := cache.MetaNamespaceKeyFunc(o)
 		m.cache = append(m.cache, key)
 	}
-	if len(objs) == 0 {
-		v.Clear()
-		fmt.Fprintln(v, colorutil.ChangeColor("Sorry, there's no objects.", gocui.ColorYellow))
-		return nil
-	}
 
 	// presentor
 	var p Presentor
-	gvk, _, _ := objectKind(objs[0])
 
-	switch gvk.Kind {
-	case "Animal":
+	if m.svc == m.mockSvc {
 		p = mock.NewPresentor()
-	case "Namespace":
+	} else if m.svc == m.namespaceSvc {
 		p = namespace.NewPresentor()
-	case "Workflow":
+	} else if m.svc == m.workflowSvc {
 		p = workflow.NewPresentor()
 	}
 
@@ -180,18 +175,18 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 				return nil
 			}
 
-			o, err := m.Svc.Get(m.cache[y])
+			o, err := m.svc.Get(m.cache[y])
 			if err != nil {
 				log.Errorf("failed to get the object: %s", err)
 				return nil
 			}
-			gvk, _, _ := objectKind(o)
-			switch gvk.Kind {
-			case "Namespace":
-				m.namespace, _ = cache.MetaNamespaceKeyFunc(o)
-				m.Svc = m.SvcEntries[defaultSvc]
-				log.Infof("switch namespace: %s", m.namespace)
+
+			if m.svc != m.namespaceSvc {
+				return nil
 			}
+			m.namespace, _ = cache.MetaNamespaceKeyFunc(o)
+			m.svc = m.workflowSvc
+			log.Infof("switch namespace: %s", m.namespace)
 			return nil
 		}); err != nil {
 		return err
@@ -267,23 +262,13 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 			}
 
 			key := m.cache[y]
-			o, err := m.Svc.Get(key)
-			if err != nil {
-				log.Errorf("failed to get the object: %s", err)
-				return nil
-			}
-
-			gvk, _, _ := objectKind(o)
-			switch gvk.Kind {
-			case "Animal":
+			if m.svc == m.mockSvc {
 				m.Warn(g, "sorry, animal is not implemented yet.")
-			case "Namespace":
+			} else if m.svc == m.namespaceSvc {
 				m.Warn(g, "sorry, namespace is not implemented yet.")
-			case "Workflow":
+			} else if m.svc == m.workflowSvc {
 				log.Infof("switch to the informer: %s", key)
 				m.NewInformer(g, key)
-			default:
-				return nil
 			}
 
 			return nil
@@ -301,7 +286,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 			}
 
 			key := m.cache[y]
-			o, err := m.Svc.Get(key)
+			o, err := m.svc.Get(key)
 			if err != nil {
 				log.Errorf("failed to get the object: %s", err)
 				return nil
@@ -360,7 +345,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 				m.Error(g, fmt.Sprintf("failed to switch: %s", err))
 				return nil
 			}
-			m.Svc = svc
+			m.svc = svc
 			log.Infof("switch the service")
 
 			return nil
@@ -471,11 +456,22 @@ func (m *Manager) ReturnSwitcher(g *gocui.Gui) (runtime.UseCase, error) {
 	s, _ := v.Line(0)
 	s = strings.TrimSpace(s)
 
-	svc, ok := m.SvcEntries[s]
-	if !ok {
-		return nil, fmt.Errorf("there is no service: %s", s)
+	var (
+		svc runtime.UseCase
+		err error
+	)
+	switch s {
+	case "mock":
+		svc = m.mockSvc
+	case "ns":
+		svc = m.namespaceSvc
+	case "wf":
+		svc = m.workflowSvc
+	default:
+		svc = nil
+		err = fmt.Errorf("there is no service: %s", s)
 	}
-	return svc, nil
+	return svc, err
 }
 
 // NewRemover switch to the remover and confirm to delete or not.
@@ -516,7 +512,7 @@ func (m *Manager) ReturnRemover(g *gocui.Gui, delete bool) error {
 		return nil
 	}
 
-	if err := m.Svc.Delete(m.removed); err != nil {
+	if err := m.svc.Delete(m.removed); err != nil {
 		return err
 	}
 	return nil

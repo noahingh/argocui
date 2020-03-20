@@ -97,7 +97,7 @@ func (m *Manager) NewFollower(g *gocui.Gui, key string) error {
 	m.logs = make([]runtime.Log, 0)
 	ctx, cancel := context.WithCancel(context.Background())
 	m.cancel = cancel
-	ch, err := m.Svc.Logs(ctx, key)
+	ch, err := m.svc.Logs(ctx, key)
 	go func() {
 		for {
 			select {
@@ -112,7 +112,7 @@ func (m *Manager) NewFollower(g *gocui.Gui, key string) error {
 
 	go viewutil.RefreshViewPeriodic(g, v, 1*time.Second, func() error {
 		v.Clear()
-		o, err := m.Svc.Get(key)
+		o, err := m.svc.Get(key)
 		if err != nil {
 			log.Errorf("failed to get the object: %s", err)
 			return nil
