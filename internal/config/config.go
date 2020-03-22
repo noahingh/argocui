@@ -14,7 +14,7 @@ const (
          \/     /_____/                           \/              
 `
 	// Version is the version of Argocui.
-	Version = "v0.0.3"
+	Version = "v0.1.0"
 	// ArgoVersion is the version of the Argo package.
 	ArgoVersion = "v2.4.1"
 	// HomePage is the url of Argocui repository.
