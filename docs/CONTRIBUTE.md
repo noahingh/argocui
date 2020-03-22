@@ -5,8 +5,6 @@
 - [GO](https://golang.org/dl/)
 - Kubernetes configuration
 
----
-
 ## UI
 
 In the `cmd` directory, it has the `mock` command to mocking resources. The aim of this command is to simulate your codes of UI, writing test codes of UI is not easy, so that you can check it works as you want.
