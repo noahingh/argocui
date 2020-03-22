@@ -4,16 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.0]
 ### Added
-- 
+- Add mocking command to test([#12](https://github.com/hanjunlee/argocui/pull/12)) UI stuff easily.
+- Confirm before delete([#16](https://github.com/hanjunlee/argocui/pull/16)).
+- Add UI messenger to show the error message([#20](https://github.com/hanjunlee/argocui/pull/20)).
 
 ### Fixed
-- Fix the position of namespace.[#10](https://github.com/hanjunlee/argocui/pull/10)
+- Fix the position of namespace([#10](https://github.com/hanjunlee/argocui/pull/10)).
+- Refactoring the structure of codes to exand features easily([#13](https://github.com/hanjunlee/argocui/pull/13)).
+
+### Deleted
+- Delete read only option.
 
 ## [0.0.3]
 ### Added
-- Add the `version` command option[#9](https://github.com/hanjunlee/argocui/pull/9).
+- Add the `version` command option([#9](https://github.com/hanjunlee/argocui/pull/9)).
 
 ### Fixed
 - Fix the version in the info view.
