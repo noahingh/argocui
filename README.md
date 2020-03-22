@@ -1,13 +1,13 @@
-# ArgoCUI
-
-[![Build Status](https://cloud.drone.io/api/badges/hanjunlee/argocui/status.svg)](https://cloud.drone.io/hanjunlee/argocui)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/hanjunlee/argocui/graphs/commit-activity)
-[![GoDoc](https://godoc.org/github.com/hanjunlee/argocui?status.svg)](https://godoc.org/github.com/hanjunlee/argocui/pkg)
-
-
-It support to manage Argo resource by CUI.
-
 ![ArgoCUI](./img/argocui.jpeg)
+
+# ArgoCUI - CLI To Manage Argo resource.
+
+[![Build Status](https://cloud.drone.io/api/badges/hanjunlee/argocui/status.svg)](https://cloud.drone.io/hanjunlee/argocui) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/hanjunlee/argocui/graphs/commit-activity) [![GoDoc](https://godoc.org/github.com/hanjunlee/argocui?status.svg)](https://godoc.org/github.com/hanjunlee/argocui/pkg)
+
+---
+
+Argocui provides a terminal UI to manage [Argo](https://github.com/argoproj/argo) resources. The aim of this project is to deal with Argo resources such as `Workflow` and `CronWorkflow` as the `argo` command provides. 
+
 
 ## Overview
 
@@ -41,8 +41,6 @@ $ go build -o argocui ./cmd
 Usage of argocui  
   -debug
     	Debug mode.
-  -ro
-    	Read only mode.
   -trace
     	Debug as trace level.
   -version
@@ -53,36 +51,18 @@ Usage of argocui
 
 ## Keybinding
 
-### List
-
- Key | Description
------|-------------
- `/` | Set the search current view.
- `A` | Set as the global namespace, click again if you want to back.
- `k` | Move cursor up.
- `j` | Move cursor down.
- `H` | Move cursor up to the upper bound.
- `L` | Move cursor down to the bottom.
- `ctrl + n` | Switch to another namespace.
- `ctrl + l` | Display logs from Argo workflow.
- `ctrl + g` | Display the tree of Argo workflow.
-
-### Search
-
- Key | Description
------|-------------
- `enter` | Search Argo workflows which is matched with the pattern.
- `ctrl + u` | Clean.
-
-### Logs & Tree
-
- Key | Description
------|-------------
- `k` | Move cursor up.
- `j` | Move cursor down.
- `H` | Move cursor up to the upper bound.
- `L` | Move cursor down to the bottom.
- `esc` | Back to the list view.
+Command | Description 
+--------|-------------
+`H`     | Move the cursor to the top of a view.
+`k`     | Move the cursor up.
+`j`     | Move the cursor down.
+`L`     | Move the cursor to the bottom of a view.
+`esc`   | Back to the main view which displays the list of resources.
+`:`     | Switch the [Kind](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#types-kinds) to another. It has `ns` i.e `Namespace` and `wf` i.e `Workflow` at this moment. For example, `:ns` switch the Kind into the `Namespace`. 
+`/`     | Search resources which is matched with the pattern. 
+`ctrl+g`| Display the detail of resource. It works for `Workflow`.
+`ctrl+l`| Follow logs of resource. It works for `Workflow`.
+`ctrl+delete` | Delete the resource. It works for `Workflow`.
 
 ## Changelog
 
@@ -92,3 +72,6 @@ Usage of argocui
 
 [CONTRIBUTE.md](./docs/CONTRIBUTE.md)
 
+## Special thanks to 
+
+I owe a huge thanks to maintainer and contributers of [K9S](https://github.com/derailed/k9s).
