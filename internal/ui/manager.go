@@ -26,8 +26,6 @@ const (
 	Dector string = "dector"
 	// Switcher is the switcher view.
 	Switcher string = "switcher"
-	// Follower is th follower view.
-	Follower string = "follower"
 	// Remover is the remover view.
 	Remover string = "remover"
 	// Messenger is the messenger view.

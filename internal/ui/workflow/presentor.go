@@ -11,7 +11,7 @@ import (
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	h "github.com/argoproj/pkg/humanize"
 	svc "github.com/hanjunlee/argocui/internal/runtime"
-	tw "github.com/hanjunlee/argocui/pkg/tablewriter"
+	// tw "github.com/hanjunlee/argocui/pkg/tablewriter"
 	"github.com/hanjunlee/argocui/pkg/tree"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
@@ -100,14 +100,17 @@ func (p *Presentor) PresentInformer(v *gocui.View, obj runtime.Object) error {
 
 // PresentFollower display logs and color the display name of node.
 func (p *Presentor) PresentFollower(v *gocui.View, logs []svc.Log) error {
-	w, _ := v.Size()
-	t := tw.NewTableWriter(v)
+	width, _ := v.Size()
+	
+	w := tabwriter.NewWriter(v, width/4, 1, 1, ' ', tabwriter.TabIndent)
 
-	t.SetColumns([]string{"NAME", "MESSAGE"})
-	t.SetColumnWidths([]int{50, w - 40})
-	t.SetHeaderBorder(true)
-	t.AppendBulk(p.convertLogsToRows(logs))
-	return t.Render()
+	fmt.Fprintln(w, "NAME\tMESSAGE\t")
+	items := p.convertLogsToRows(logs)
+	for _, i := range items {
+		fmt.Fprintf(w, "%s\t%s\t\n", i[0], i[1])
+	}
+
+	return w.Flush()
 }
 
 func (p *Presentor) convertLogsToRows(logs []svc.Log) [][]string {

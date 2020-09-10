@@ -30,12 +30,16 @@ func (g logGroup) Swap(i, j int) {
 	return
 }
 
+const (
+	viewFollower string = "follower"
+)
+
 // NewFollower create a new view to follow logs of a object.
 func (m *Manager) NewFollower(g *gocui.Gui, key string) error {
 	w, h := g.Size()
 
 	// set view
-	v, err := g.SetView(Follower, 0, h/5+3, w-1, h-1)
+	v, err := g.SetView(viewFollower, 0, h/5+3, w-1, h-1)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -46,11 +50,11 @@ func (m *Manager) NewFollower(g *gocui.Gui, key string) error {
 		v.SelBgColor = gocui.ColorYellow
 		v.SelFgColor = gocui.ColorBlack
 		v.SetCursor(0, headerSize)
-		g.SetCurrentView(Follower)
+		g.SetCurrentView(viewFollower)
 	}
 
 	// set keybinding
-	if err := g.SetKeybinding(Follower, gocui.KeyEsc, gocui.ModNone,
+	if err := g.SetKeybinding(viewFollower, gocui.KeyEsc, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return m.ReturnFollower(g)
 		}); err != nil {
@@ -58,35 +62,35 @@ func (m *Manager) NewFollower(g *gocui.Gui, key string) error {
 	}
 
 	// TODO: display time
-	if err := g.SetKeybinding(Follower, 't', gocui.ModNone,
+	if err := g.SetKeybinding(viewFollower, 't', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return nil
 		}); err != nil {
 		return err
 	}
 
-	if err := g.SetKeybinding(Follower, 'k', gocui.ModNone,
+	if err := g.SetKeybinding(viewFollower, 'k', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return viewutil.MoveCursorUp(g, v, headerSize)
 		}); err != nil {
 		return err
 	}
 
-	if err := g.SetKeybinding(Follower, 'j', gocui.ModNone,
+	if err := g.SetKeybinding(viewFollower, 'j', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return viewutil.MoveCursorDown(g, v)
 		}); err != nil {
 		return err
 	}
 
-	if err := g.SetKeybinding(Follower, 'H', gocui.ModNone,
+	if err := g.SetKeybinding(viewFollower, 'H', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return viewutil.MoveCursorTop(g, v, headerSize)
 		}); err != nil {
 		return err
 	}
 
-	if err := g.SetKeybinding(Follower, 'L', gocui.ModNone,
+	if err := g.SetKeybinding(viewFollower, 'L', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return viewutil.MoveCursorBottom(g, v)
 		}); err != nil {
@@ -138,8 +142,8 @@ func (m *Manager) NewFollower(g *gocui.Gui, key string) error {
 // ReturnFollower switch to the viewCore.
 func (m *Manager) ReturnFollower(g *gocui.Gui) error {
 	defer g.SetCurrentView(viewCore)
-	defer g.DeleteView(Follower)
-	defer g.DeleteKeybindings(Follower)
+	defer g.DeleteView(viewFollower)
+	defer g.DeleteKeybindings(viewFollower)
 
 	m.cancel()
 	return nil
