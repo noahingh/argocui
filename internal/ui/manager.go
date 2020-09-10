@@ -8,7 +8,6 @@ import (
 
 	"github.com/hanjunlee/argocui/internal/config"
 	"github.com/hanjunlee/argocui/internal/runtime"
-	"github.com/hanjunlee/argocui/internal/ui/mock"
 	"github.com/hanjunlee/argocui/internal/ui/namespace"
 	"github.com/hanjunlee/argocui/internal/ui/workflow"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
@@ -38,7 +37,6 @@ const (
 // Manager is the manager of UI.
 type Manager struct {
 	svc          runtime.UseCase
-	mockSvc      runtime.UseCase
 	namespaceSvc runtime.UseCase
 	workflowSvc  runtime.UseCase
 
@@ -62,12 +60,11 @@ type Manager struct {
 }
 
 // NewManager create a new UI manager. The namespace of the manager is depends on the configuration of the user.
-func NewManager(mock runtime.UseCase, namespace runtime.UseCase, workflow runtime.UseCase) *Manager {
+func NewManager(namespace runtime.UseCase, workflow runtime.UseCase) *Manager {
 	ns, _ := argoutil.GetNamespace()
 
 	return &Manager{
 		svc:          workflow,
-		mockSvc:      mock,
 		namespaceSvc: namespace,
 		workflowSvc:  workflow,
 		namespace:    ns,
@@ -137,9 +134,7 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 	// presentor
 	var p Presentor
 
-	if m.svc == m.mockSvc {
-		p = mock.NewPresentor()
-	} else if m.svc == m.namespaceSvc {
+	if m.svc == m.namespaceSvc {
 		p = namespace.NewPresentor()
 	} else if m.svc == m.workflowSvc {
 		p = workflow.NewPresentor()
@@ -257,9 +252,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 			}
 
 			key := m.cache[y]
-			if m.svc == m.mockSvc {
-				m.Warn(g, "sorry, animal is not implemented yet.")
-			} else if m.svc == m.namespaceSvc {
+			if m.svc == m.namespaceSvc {
 				m.Warn(g, "sorry, namespace is not implemented yet.")
 			} else if m.svc == m.workflowSvc {
 				log.Infof("switch to the informer: %s", key)
@@ -456,8 +449,6 @@ func (m *Manager) ReturnSwitcher(g *gocui.Gui) (runtime.UseCase, error) {
 		err error
 	)
 	switch s {
-	case "mock":
-		svc = m.mockSvc
 	case "ns":
 		svc = m.namespaceSvc
 	case "wf":

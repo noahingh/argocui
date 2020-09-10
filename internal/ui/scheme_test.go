@@ -4,8 +4,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hanjunlee/argocui/internal/runtime/mock"
-
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -24,19 +22,6 @@ func Test_objectKind(t *testing.T) {
 		want1   bool
 		wantErr bool
 	}{
-		{
-			name: "kind Animal",
-			args: args{
-				o: mock.NewAnimal("alligator"),
-			},
-			want: schema.GroupVersionKind{
-				Group:   "argocui.github.com",
-				Version: "v1",
-				Kind:    "Animal",
-			},
-			want1:   false,
-			wantErr: false,
-		},
 		{
 			name: "kind Namespace",
 			args: args{

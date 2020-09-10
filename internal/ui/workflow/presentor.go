@@ -11,7 +11,6 @@ import (
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	h "github.com/argoproj/pkg/humanize"
 	svc "github.com/hanjunlee/argocui/internal/runtime"
-	// tw "github.com/hanjunlee/argocui/pkg/tablewriter"
 	"github.com/hanjunlee/argocui/pkg/tree"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"

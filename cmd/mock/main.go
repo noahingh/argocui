@@ -10,7 +10,6 @@ import (
 	"github.com/hanjunlee/argocui/cmd/mock/yaml"
 	"github.com/hanjunlee/argocui/internal/config"
 	svc "github.com/hanjunlee/argocui/internal/runtime"
-	"github.com/hanjunlee/argocui/internal/runtime/mock"
 	"github.com/hanjunlee/argocui/internal/runtime/namespace"
 	workflow "github.com/hanjunlee/argocui/internal/runtime/workflow/fake"
 	"github.com/hanjunlee/argocui/internal/ui"
@@ -72,7 +71,7 @@ func main() {
 	kfactory.WaitForCacheSync(neverStop)
 	afactory.WaitForCacheSync(neverStop)
 
-	m := ui.NewManager(svcs["mock"], svcs["ns"], svcs["wf"])
+	m := ui.NewManager(svcs["ns"], svcs["wf"])
 	g.SetManager(m)
 
 	if err := m.Keybinding(g); err != nil {
@@ -157,10 +156,6 @@ func getMockingWorkflows() []runtime.Object {
 }
 
 func getRuntimeServices(kc kubernetes.Interface, kfactory ki.SharedInformerFactory, ac versioned.Interface, afactory ai.SharedInformerFactory) map[string]svc.UseCase {
-	// mock service
-	mr := &mock.Repo{}
-	ms := svc.NewService(mr)
-
 	// namespace service
 	ni := kfactory.Core().V1().Namespaces()
 	for _, n := range namespaces {
@@ -180,7 +175,6 @@ func getRuntimeServices(kc kubernetes.Interface, kfactory ki.SharedInformerFacto
 	ws := svc.NewService(wr)
 
 	return map[string]svc.UseCase{
-		"mock": ms,
 		"ns":   ns,
 		"wf":   ws,
 	}
