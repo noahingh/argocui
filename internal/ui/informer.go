@@ -90,9 +90,9 @@ func (m *Manager) NewInformer(g *gocui.Gui, key string) error {
 	return nil
 }
 
-// ReturnInformer switch to the Core.
+// ReturnInformer switch to the viewCore.
 func (m *Manager) ReturnInformer(g *gocui.Gui) error {
-	defer g.SetCurrentView(Core)
+	defer g.SetCurrentView(viewCore)
 	defer g.DeleteView(Informer)
 	defer g.DeleteKeybindings(Informer)
 	return nil

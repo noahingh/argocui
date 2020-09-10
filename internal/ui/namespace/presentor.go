@@ -1,10 +1,11 @@
 package namespace
 
 import (
-	svc "github.com/hanjunlee/argocui/internal/runtime"
-	tw "github.com/hanjunlee/argocui/pkg/tablewriter"
-	err "github.com/hanjunlee/argocui/pkg/util/error"
+	"fmt"
+	"text/tabwriter"
 
+	svc "github.com/hanjunlee/argocui/internal/runtime"
+	err "github.com/hanjunlee/argocui/pkg/util/error"
 	"github.com/jroimartin/gocui"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -20,14 +21,17 @@ func NewPresentor() *Presentor {
 
 // PresentCore present the core view for Animal.
 func (p *Presentor) PresentCore(v *gocui.View, objs []runtime.Object) error {
-	w, _ := v.Size()
+	width, _ := v.Size()
 
-	t := tw.NewTableWriter(v)
-	t.SetColumns([]string{"NAMESPACE"})
-	t.SetColumnWidths([]int{w})
-	t.SetHeaderBorder(true)
-	t.AppendBulk(p.convertToRows(objs))
-	return t.Render()
+	w := tabwriter.NewWriter(v, width, 1, 1, ' ', tabwriter.TabIndent)
+
+	fmt.Fprintln(w, "NAMESPACE\t")
+	items := p.convertToRows(objs)
+	for _, i := range items {
+		fmt.Fprintf(w, "%s\t\n", i[0])
+	}
+
+	return w.Flush()
 }
 
 func (p *Presentor) convertToRows(objs []runtime.Object) [][]string {

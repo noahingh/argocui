@@ -32,7 +32,7 @@ func TestPresentor_convertToRows(t *testing.T) {
 				},
 			},
 			want: [][]string{
-				[]string{"default"},
+				{"default"},
 			},
 		},
 	}

@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"text/tabwriter"
 
 	svc "github.com/hanjunlee/argocui/internal/runtime"
 	tw "github.com/hanjunlee/argocui/pkg/tablewriter"
 	"github.com/hanjunlee/argocui/pkg/tree"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
-
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	h "github.com/argoproj/pkg/humanize"
 	"github.com/jroimartin/gocui"
@@ -31,18 +31,17 @@ func NewPresentor() *Presentor {
 
 // PresentCore present the core view for Animal.
 func (p *Presentor) PresentCore(v *gocui.View, objs []runtime.Object) error {
-	w, _ := v.Size()
-	nameWidth := w - 90
-	if nameWidth < 45 {
-		nameWidth = 45
+	width, _ := v.Size()
+
+	w := tabwriter.NewWriter(v, width/5, 1, 1, ' ', tabwriter.TabIndent)
+
+	fmt.Fprintln(w, "NAMESPACE\tNAME\tSTATUS\tAGE\tDURATION\t")
+	items := p.convertToRows(objs)
+	for _, i := range items {
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t\n", i[0], i[1], i[2], i[3], i[4])
 	}
 
-	t := tw.NewTableWriter(v)
-	t.SetColumns([]string{"NAMESPACE", "NAME", "STATUS", "AGE", "DURATION"})
-	t.SetColumnWidths([]int{50, nameWidth, 20, 10, 10})
-	t.SetHeaderBorder(true)
-	t.AppendBulk(p.convertToRows(objs))
-	return t.Render()
+	return w.Flush()
 }
 
 // TODO: have a unit-test

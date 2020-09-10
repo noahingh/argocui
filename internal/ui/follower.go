@@ -135,9 +135,9 @@ func (m *Manager) NewFollower(g *gocui.Gui, key string) error {
 	return nil
 }
 
-// ReturnFollower switch to the Core.
+// ReturnFollower switch to the viewCore.
 func (m *Manager) ReturnFollower(g *gocui.Gui) error {
-	defer g.SetCurrentView(Core)
+	defer g.SetCurrentView(viewCore)
 	defer g.DeleteView(Follower)
 	defer g.DeleteKeybindings(Follower)
 

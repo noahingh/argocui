@@ -22,7 +22,7 @@ import (
 
 const (
 	// Core is the core view.
-	Core string = "core"
+	viewCore string = "core"
 	// Dector is the dector view.
 	Dector string = "dector"
 	// Switcher is the switcher view.
@@ -37,7 +37,7 @@ const (
 	Messenger string = "messenger"
 
 	// headerSize is the size of table header.
-	headerSize = 2
+	headerSize = 1
 )
 
 // Manager is the manager of UI.
@@ -115,7 +115,7 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 	}
 
 	// core
-	v, err = g.SetView(Core, 0, h/5+3, w-1, h-2)
+	v, err = g.SetView(viewCore, 0, h/5+3, w-1, h-2)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -127,7 +127,7 @@ func (m *Manager) Layout(g *gocui.Gui) error {
 		v.SelFgColor = gocui.ColorBlack
 		v.SetCursor(0, headerSize)
 
-		g.SetCurrentView(Core)
+		g.SetCurrentView(viewCore)
 	}
 
 	objs := m.svc.Search(m.namespace, m.dected)
@@ -166,7 +166,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 	}
 
 	// Core keybinding
-	if err := g.SetKeybinding(Core, gocui.KeyEnter, gocui.ModNone,
+	if err := g.SetKeybinding(viewCore, gocui.KeyEnter, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			_, y, _ := viewutil.GetCursorPosition(g, v)
 			y = y - headerSize
@@ -192,35 +192,35 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 		return err
 	}
 
-	if err := g.SetKeybinding(Core, 'k', gocui.ModNone,
+	if err := g.SetKeybinding(viewCore, 'k', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return viewutil.MoveCursorUp(g, v, headerSize)
 		}); err != nil {
 		return err
 	}
 
-	if err := g.SetKeybinding(Core, 'j', gocui.ModNone,
+	if err := g.SetKeybinding(viewCore, 'j', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return viewutil.MoveCursorDown(g, v)
 		}); err != nil {
 		return err
 	}
 
-	if err := g.SetKeybinding(Core, 'H', gocui.ModNone,
+	if err := g.SetKeybinding(viewCore, 'H', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return viewutil.MoveCursorTop(g, v, headerSize)
 		}); err != nil {
 		return err
 	}
 
-	if err := g.SetKeybinding(Core, 'L', gocui.ModNone,
+	if err := g.SetKeybinding(viewCore, 'L', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return viewutil.MoveCursorBottom(g, v)
 		}); err != nil {
 		return err
 	}
 
-	if err := g.SetKeybinding(Core, '/', gocui.ModNone,
+	if err := g.SetKeybinding(viewCore, '/', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			log.Infof("new dector")
 			return m.NewDector(g, m.dected)
@@ -228,7 +228,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 		return err
 	}
 
-	if err := g.SetKeybinding(Core, ':', gocui.ModNone,
+	if err := g.SetKeybinding(viewCore, ':', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			log.Infof("new switcher")
 			return m.NewSwitcher(g)
@@ -236,7 +236,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 		return err
 	}
 
-	if err := g.SetKeybinding(Core, gocui.KeyBackspace2, gocui.ModNone,
+	if err := g.SetKeybinding(viewCore, gocui.KeyBackspace2, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			_, y, _ := viewutil.GetCursorPosition(g, v)
 			y = y - headerSize
@@ -252,7 +252,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 		return err
 	}
 
-	if err := g.SetKeybinding(Core, gocui.KeyCtrlG, gocui.ModNone,
+	if err := g.SetKeybinding(viewCore, gocui.KeyCtrlG, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			_, y, _ := viewutil.GetCursorPosition(g, v)
 			y = y - headerSize
@@ -276,7 +276,7 @@ func (m *Manager) Keybinding(g *gocui.Gui) error {
 		return err
 	}
 
-	if err := g.SetKeybinding(Core, gocui.KeyCtrlL, gocui.ModNone,
+	if err := g.SetKeybinding(viewCore, gocui.KeyCtrlL, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			_, y, _ := viewutil.GetCursorPosition(g, v)
 			y = y - headerSize
@@ -409,10 +409,10 @@ func (m *Manager) NewDector(g *gocui.Gui, init string) error {
 	return nil
 }
 
-// ReturnDector return the result from the dector and back to the Core.
+// ReturnDector return the result from the dector and back to the viewCore.
 func (m *Manager) ReturnDector(g *gocui.Gui) (string, error) {
-	v, _ := g.View(Core)
-	defer g.SetCurrentView(Core)
+	v, _ := g.View(viewCore)
+	defer g.SetCurrentView(viewCore)
 	defer v.SetOrigin(0, 0)
 	defer v.SetCursor(0, headerSize)
 	defer g.DeleteView(Dector)
@@ -444,10 +444,10 @@ func (m *Manager) NewSwitcher(g *gocui.Gui) error {
 	return nil
 }
 
-// ReturnSwitcher return the service from the switcher and back to the Core.
+// ReturnSwitcher return the service from the switcher and back to the viewCore.
 func (m *Manager) ReturnSwitcher(g *gocui.Gui) (runtime.UseCase, error) {
-	v, _ := g.View(Core)
-	defer g.SetCurrentView(Core)
+	v, _ := g.View(viewCore)
+	defer g.SetCurrentView(viewCore)
 	defer v.SetOrigin(0, 0)
 	defer v.SetCursor(0, headerSize)
 	defer g.DeleteView(Switcher)
@@ -496,9 +496,9 @@ func (m *Manager) NewRemover(g *gocui.Gui, key string) error {
 	return nil
 }
 
-// ReturnRemover switch to the Core.
+// ReturnRemover switch to the viewCore.
 func (m *Manager) ReturnRemover(g *gocui.Gui, delete bool) error {
-	defer g.SetCurrentView(Core)
+	defer g.SetCurrentView(viewCore)
 	defer g.DeleteView(Remover)
 
 	v, _ := g.View(Remover)
