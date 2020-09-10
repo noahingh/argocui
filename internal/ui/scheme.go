@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"github.com/hanjunlee/argocui/internal/runtime/mock"
-
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -14,7 +12,6 @@ var (
 )
 
 func init() {
-	scheme.AddKnownTypes(schema.GroupVersion{Group: "argocui.github.com", Version: "v1"}, &mock.Animal{})
 	scheme.AddKnownTypes(schema.GroupVersion{Group: "", Version: "v1"}, &corev1.Namespace{})
 	scheme.AddKnownTypes(schema.GroupVersion{Group: "argoproj.io", Version: "v1alpha1"}, &wf.Workflow{})
 }
