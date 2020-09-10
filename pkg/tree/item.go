@@ -5,9 +5,7 @@ import (
 	"strings"
 
 	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
-	"github.com/hanjunlee/argocui/pkg/util/color"
 	"github.com/hanjunlee/tree"
-	"github.com/jroimartin/gocui"
 )
 
 const (
@@ -22,12 +20,12 @@ var (
 
 func init() {
 	icons = map[wf.NodePhase]string{
-		wf.NodePending:   color.ChangeColor("◷", gocui.ColorYellow),
-		wf.NodeRunning:   color.ChangeColor("●", gocui.ColorCyan),
-		wf.NodeSucceeded: color.ChangeColor("✔", gocui.ColorGreen),
-		wf.NodeSkipped:   color.ChangeColor("○", gocui.ColorDefault),
-		wf.NodeFailed:    color.ChangeColor("✖", gocui.ColorRed),
-		wf.NodeError:     color.ChangeColor("⚠", gocui.ColorRed),
+		wf.NodePending:   "◷",
+		wf.NodeRunning:   "●",
+		wf.NodeSucceeded: "✔",
+		wf.NodeSkipped:   "○",
+		wf.NodeFailed:    "✖",
+		wf.NodeError:     "⚠",
 	}
 }
 

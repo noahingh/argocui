@@ -10,12 +10,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const (
+	viewInformer string = "informer"
+)
+
 // NewInformer create a new view to display the information of a object.
 func (m *Manager) NewInformer(g *gocui.Gui, key string) error {
 	w, h := g.Size()
 
 	// set view
-	v, err := g.SetView(Informer, 0, h/5+3, w-1, h-1)
+	v, err := g.SetView(viewInformer, 0, h/5+3, w-1, h-1)
 	if err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
@@ -26,39 +30,39 @@ func (m *Manager) NewInformer(g *gocui.Gui, key string) error {
 		v.SelBgColor = gocui.ColorYellow
 		v.SelFgColor = gocui.ColorBlack
 		v.SetCursor(0, 0)
-		g.SetCurrentView(Informer)
+		g.SetCurrentView(viewInformer)
 	}
 
 	// set keybinding
-	if err := g.SetKeybinding(Informer, gocui.KeyEsc, gocui.ModNone,
+	if err := g.SetKeybinding(viewInformer, gocui.KeyEsc, gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return m.ReturnInformer(g)
 		}); err != nil {
 		return err
 	}
 
-	if err := g.SetKeybinding(Informer, 'k', gocui.ModNone,
+	if err := g.SetKeybinding(viewInformer, 'k', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return viewutil.MoveCursorUp(g, v, 0)
 		}); err != nil {
 		return err
 	}
 
-	if err := g.SetKeybinding(Informer, 'j', gocui.ModNone,
+	if err := g.SetKeybinding(viewInformer, 'j', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return viewutil.MoveCursorDown(g, v)
 		}); err != nil {
 		return err
 	}
 
-	if err := g.SetKeybinding(Informer, 'H', gocui.ModNone,
+	if err := g.SetKeybinding(viewInformer, 'H', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return viewutil.MoveCursorTop(g, v, 0)
 		}); err != nil {
 		return err
 	}
 
-	if err := g.SetKeybinding(Informer, 'L', gocui.ModNone,
+	if err := g.SetKeybinding(viewInformer, 'L', gocui.ModNone,
 		func(g *gocui.Gui, v *gocui.View) error {
 			return viewutil.MoveCursorBottom(g, v)
 		}); err != nil {
@@ -93,7 +97,7 @@ func (m *Manager) NewInformer(g *gocui.Gui, key string) error {
 // ReturnInformer switch to the viewCore.
 func (m *Manager) ReturnInformer(g *gocui.Gui) error {
 	defer g.SetCurrentView(viewCore)
-	defer g.DeleteView(Informer)
-	defer g.DeleteKeybindings(Informer)
+	defer g.DeleteView(viewInformer)
+	defer g.DeleteKeybindings(viewInformer)
 	return nil
 }

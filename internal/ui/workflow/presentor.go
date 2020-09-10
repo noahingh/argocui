@@ -3,16 +3,18 @@ package workflow
 import (
 	"fmt"
 	"strings"
-	"time"
-	"text/tabwriter"
 
+	// "strings"
+	"text/tabwriter"
+	"time"
+
+	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
+	h "github.com/argoproj/pkg/humanize"
 	svc "github.com/hanjunlee/argocui/internal/runtime"
 	tw "github.com/hanjunlee/argocui/pkg/tablewriter"
 	"github.com/hanjunlee/argocui/pkg/tree"
 	argoutil "github.com/hanjunlee/argocui/pkg/util/argo"
 	colorutil "github.com/hanjunlee/argocui/pkg/util/color"
-	wf "github.com/argoproj/argo/pkg/apis/workflow/v1alpha1"
-	h "github.com/argoproj/pkg/humanize"
 	"github.com/jroimartin/gocui"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -67,31 +69,33 @@ func (p *Presentor) PresentInformer(v *gocui.View, obj runtime.Object) error {
 	w := obj.(*wf.Workflow)
 	width, _ := v.Size()
 
-	// general information
-	t := tw.NewTableWriter(v)
-	t.SetColumnWidths([]int{40, width - 40})
-	t.AppendBulk(tree.GetInfo(w))
-	t.Render()
-	fmt.Fprintln(v, strings.Repeat(" ", width))
+	// print the general information
+	tabw := tabwriter.NewWriter(v, width/4+1, 1, 1, ' ', tabwriter.TabIndent)
 
-	// tree
-	t = tw.NewTableWriter(v)
-	t.SetColumns([]string{"STEP", "PODNAME", "DURATION", "MESSAGE"})
-	t.SetColumnWidths([]int{50, 50, 15, width - 95})
+	infos := tree.GetInfo(w)
+	for _, i := range infos {
+		key, val := i[0], i[1]
+		fmt.Fprintf(tabw, "%s\t%s\t\t\t\n", key, val)
+	}
 
+	if err := tabw.Flush(); err != nil {
+		return err
+	}
+
+	fmt.Fprintln(tabw, strings.Repeat(" ", width))
+
+	// print the workflow tree
+	fmt.Fprintln(tabw, "STEP\tPODNAME\tDURATION\tMESSAGE\t")
 	tr, err := tree.GetTreeRoot(w)
 	if err != nil {
 		return err
 	}
-	t.AppendBulk(tr)
 
-	te, err := tree.GetTreeExit(w)
-	if err != nil {
-		return err
+	for _, i := range tr {
+		fmt.Fprintf(tabw, "%s\t%s\t%s\t%s\t\n", i[0], i[1], i[2], i[3])
 	}
-	t.AppendBulk(te)
 
-	return t.Render()
+	return tabw.Flush()
 }
 
 // PresentFollower display logs and color the display name of node.

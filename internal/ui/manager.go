@@ -21,14 +21,11 @@ import (
 )
 
 const (
-	// Core is the core view.
 	viewCore string = "core"
 	// Dector is the dector view.
 	Dector string = "dector"
 	// Switcher is the switcher view.
 	Switcher string = "switcher"
-	// Informer is the informer view.
-	Informer string = "informer"
 	// Follower is th follower view.
 	Follower string = "follower"
 	// Remover is the remover view.
